@@ -148,7 +148,7 @@ export default function LevySection() {
 
       {/* 연도별 고용부담금 추이 */}
       <div className="bg-white rounded-2xl shadow-sm p-5">
-        <h2 className="text-base font-bold text-gray-800 mb-1">연도별 고용부담금 추이 (2017~2022)</h2>
+        <h2 className="text-base font-bold text-gray-800 mb-1">연도별 고용부담금 추이 (2017~2025)</h2>
         <p className="text-xs text-gray-400 mb-4">부담금이 매년 증가한다는 것은 의무고용 미달 기업이 계속 늘거나 부담기초액이 인상되었음을 의미합니다.</p>
         <ResponsiveContainer width="100%" height={240}>
           <LineChart data={levyYearlyData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>

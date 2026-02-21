@@ -25,7 +25,7 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
 export default function YearlyTrendChart() {
   return (
     <div className="bg-white rounded-2xl shadow-sm p-5">
-      <h2 className="text-base font-bold text-gray-800 mb-4">연도별 등록장애인 추이 (2016~2022)</h2>
+      <h2 className="text-base font-bold text-gray-800 mb-4">연도별 등록장애인 추이 (2016~2025)</h2>
       <ResponsiveContainer width="100%" height={260}>
         <LineChart data={yearlyTrend} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />

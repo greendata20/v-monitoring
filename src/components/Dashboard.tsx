@@ -5,17 +5,19 @@ import DisabilityPieChart from './DisabilityPieChart';
 import YearlyTrendChart from './YearlyTrendChart';
 import GenderChart from './GenderChart';
 import EmploymentDashboard from './employment/EmploymentDashboard';
+import GlobalDashboard from './global/GlobalDashboard';
 import { TOTAL, DATA_YEAR, disabilityTypes, yearlyTrend } from '../data/disabilityData';
 
-type Tab = 'registration' | 'employment';
+type Tab = 'registration' | 'employment' | 'global';
 
 const prevTotal = yearlyTrend[yearlyTrend.length - 2].total;
 const diff = TOTAL - prevTotal;
 const topType = [...disabilityTypes].sort((a, b) => b.count - a.count)[0];
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: 'registration', label: '등록현황', icon: '📋' },
-  { id: 'employment',   label: '취업현황', icon: '💼' },
+  { id: 'registration', label: '등록현황',    icon: '📋' },
+  { id: 'employment',   label: '취업현황',    icon: '💼' },
+  { id: 'global',       label: '글로벌 현황', icon: '🌍' },
 ];
 
 export default function Dashboard() {
@@ -181,6 +183,9 @@ export default function Dashboard() {
 
         {/* ── 취업현황 탭 ── */}
         {activeTab === 'employment' && <EmploymentDashboard />}
+
+        {/* ── 글로벌 현황 탭 ── */}
+        {activeTab === 'global' && <GlobalDashboard />}
       </main>
     </div>
   );
