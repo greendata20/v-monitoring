@@ -180,27 +180,58 @@ export default function SalesDashboard() {
 
       {/* 부담금 안내 */}
       <section className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-5">
-        <h2 className="text-base font-bold text-gray-800 mb-3">💡 고용부담금 제도 안내</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-base font-bold text-gray-800">💡 고용부담금 제도 안내</h2>
+          <span className="text-xs text-gray-400">{SALES_DATA_YEAR}년 고용노동부 고시 기준</span>
+        </div>
+        <p className="text-xs text-gray-500 mb-3">
+          부담금 = 미달인원 × 부담기초액(이행 수준별) × 12개월 | 최저임금 월환산액 10,030원 × 209시간 = 2,096,270원
+        </p>
+
+        {/* 부담기초액 구간 테이블 */}
+        <div className="bg-white rounded-xl overflow-hidden mb-4">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-100">
+                <th className="text-left px-3 py-2 font-semibold text-gray-600">의무고용 이행 수준</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-600">부담기초액 (월/인)</th>
+                <th className="text-right px-3 py-2 font-semibold text-gray-600">연간 (인당)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { level: '3/4 이상 이행',        monthly: '1,258,000원', annual: '약 1,510만원', color: 'text-emerald-600', bg: '' },
+                { level: '1/2 이상 ~ 3/4 미만',  monthly: '1,333,480원', annual: '약 1,600만원', color: 'text-blue-600',    bg: '' },
+                { level: '1/4 이상 ~ 1/2 미만',  monthly: '1,509,600원', annual: '약 1,812만원', color: 'text-amber-600',   bg: '' },
+                { level: '1/4 미만',             monthly: '1,761,200원', annual: '약 2,113만원', color: 'text-orange-600',  bg: '' },
+                { level: '장애인 미고용 (0명)',   monthly: '2,096,270원', annual: '약 2,516만원', color: 'text-red-600 font-bold', bg: 'bg-red-50' },
+              ].map((row) => (
+                <tr key={row.level} className={`border-b border-slate-50 last:border-0 ${row.bg}`}>
+                  <td className="px-3 py-2 text-gray-700">{row.level}</td>
+                  <td className={`px-3 py-2 text-right font-mono ${row.color}`}>{row.monthly}</td>
+                  <td className={`px-3 py-2 text-right font-semibold ${row.color}`}>{row.annual}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* 명단공표 + 장려금 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="bg-white rounded-xl p-3">
-            <p className="text-xs text-gray-500">부분 미달 시 부담금</p>
-            <p className="text-xl font-bold text-blue-500">1,224만원</p>
-            <p className="text-xs text-gray-400">부족 1인당 · 연간 ({SALES_DATA_YEAR}년 기준)</p>
-          </div>
-          <div className="bg-white rounded-xl p-3">
-            <p className="text-xs text-gray-500">미고용 시 부담금</p>
-            <p className="text-xl font-bold text-red-500">1,562만원</p>
-            <p className="text-xs text-gray-400">장애인 0명 고용 시 · 연간</p>
-          </div>
-          <div className="bg-white rounded-xl p-3">
-            <p className="text-xs text-gray-500">명단공표 기준</p>
+            <p className="text-xs text-gray-500 mb-0.5">명단공표 기준</p>
             <p className="text-xl font-bold text-amber-500">1.55%</p>
-            <p className="text-xs text-gray-400">의무고용률 50% 미만 시 공표</p>
+            <p className="text-xs text-gray-400">의무고용률 50% 미만 시 KEAD 공표 (매년 1월)</p>
+          </div>
+          <div className="bg-white rounded-xl p-3">
+            <p className="text-xs text-gray-500 mb-0.5">고용장려금 (혜택)</p>
+            <p className="text-xl font-bold text-emerald-500">최대 80만원</p>
+            <p className="text-xs text-gray-400">장애인 고용 시 월/인당 · 부담금 면제 + 장려금 동시 수령</p>
           </div>
         </div>
+
         <p className="text-xs text-gray-400 mt-3">
-          ※ 장애인을 고용하면 부담금 면제 + 고용장려금(월 최대 80만원/인) 수령 가능.
-          장애인 직무지원 서비스 연계 시 고용 유지율 향상 효과 있음.
+          ※ 중증장애인 1명 고용 시 2명으로 인정(더블카운트). 장애인 직무지원 서비스 연계 시 고용 유지율 향상 효과.
         </p>
       </section>
 
