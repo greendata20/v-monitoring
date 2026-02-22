@@ -3,7 +3,18 @@ import {
   companies, industries, regions,
   priorityColors,
   MANDATORY_RATE_PRIVATE, MANDATORY_RATE_PUBLIC,
+  type Company,
 } from '../../data/salesData';
+import { getContact } from '../../hooks/useContactStore';
+import ContactModal from './ContactModal';
+
+const STATUS_BADGE: Record<string, { label: string; bg: string; text: string }> = {
+  none:       { label: '미컨택',   bg: 'bg-gray-100',   text: 'text-gray-500' },
+  contacted:  { label: '컨택완료', bg: 'bg-blue-100',   text: 'text-blue-600' },
+  meeting:    { label: '미팅완료', bg: 'bg-purple-100', text: 'text-purple-600' },
+  contracted: { label: '계약진행', bg: 'bg-emerald-100',text: 'text-emerald-600' },
+  rejected:   { label: '보류',     bg: 'bg-red-100',    text: 'text-red-500' },
+};
 
 type SortKey = 'gap' | 'employmentRate' | 'estimatedLevy' | 'totalWorkers' | 'name';
 type SortDir = 'asc' | 'desc';
@@ -19,6 +30,8 @@ export default function CompanyTable() {
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 15;
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   function handleSort(key: SortKey) {
     if (sortKey === key) {
@@ -54,6 +67,14 @@ export default function CompanyTable() {
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  function handleModalClose() {
+    setSelectedCompany(null);
+    setRefreshKey((k) => k + 1);
+  }
+
+  // refreshKey is read so React re-renders after contact save
+  void refreshKey;
 
   function SortIcon({ col }: { col: SortKey }) {
     if (sortKey !== col) return <span className="text-gray-300 ml-1">↕</span>;
@@ -174,6 +195,7 @@ export default function CompanyTable() {
               </th>
               <th className="text-center py-2 px-2 font-semibold">우선순위</th>
               <th className="text-center py-2 px-2 font-semibold">공표</th>
+              <th className="text-center py-2 px-2 font-semibold">컨택</th>
             </tr>
           </thead>
           <tbody>
@@ -251,6 +273,31 @@ export default function CompanyTable() {
                       : <span className="text-xs text-gray-200">-</span>
                     }
                   </td>
+                  {/* 컨택 */}
+                  <td className="py-2.5 px-2 text-center">
+                    {(() => {
+                      const rec = getContact(c.id);
+                      if (!rec) {
+                        return (
+                          <button
+                            onClick={() => setSelectedCompany(c)}
+                            className="text-xs px-2 py-0.5 rounded-full border border-gray-300 text-gray-400 hover:bg-gray-100 transition-colors"
+                          >
+                            +
+                          </button>
+                        );
+                      }
+                      const badge = STATUS_BADGE[rec.status] ?? STATUS_BADGE['none'];
+                      return (
+                        <button
+                          onClick={() => setSelectedCompany(c)}
+                          className={`text-xs px-2 py-0.5 rounded-full font-medium ${badge.bg} ${badge.text} hover:opacity-80 transition-opacity`}
+                        >
+                          {badge.label}
+                        </button>
+                      );
+                    })()}
+                  </td>
                 </tr>
               );
             })}
@@ -287,6 +334,11 @@ export default function CompanyTable() {
         <span>C급: 부족 1~5명</span>
         <span>의무고용률: 민간 {MANDATORY_RATE_PRIVATE}%, 공공기관 {MANDATORY_RATE_PUBLIC}%</span>
       </div>
+
+      {/* 컨택 모달 */}
+      {selectedCompany && (
+        <ContactModal company={selectedCompany} onClose={handleModalClose} />
+      )}
     </div>
   );
 }
