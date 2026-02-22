@@ -2,7 +2,12 @@
 // 출처 형식: 한국장애인고용공단 장애인고용현황 공시자료 (data.go.kr)
 // 의무고용률: 민간기업(50인↑) 3.1%, 공공기관 3.6%
 // 명단공표 기준: 고용률 1.55% 미만 (의무고용률의 50%)
-// 고용부담금: 미고용 시 약 1,224만원/인/년, 0명 고용 시 약 1,562만원/인/년
+// 고용부담금: 고용노동부 고시 부담기초액 (2025년) × 미달인원 × 12개월
+//   - 의무고용 3/4 이상 이행: 1,258,000원/월/인
+//   - 1/2 이상 ~ 3/4 미만: 1,333,480원/월/인
+//   - 1/4 이상 ~ 1/2 미만: 1,509,600원/월/인
+//   - 1/4 미만: 1,761,200원/월/인
+//   - 장애인 미고용: 2,096,270원/월/인 (최저임금 월환산액, 10,030원×209시간)
 
 export interface Company {
   id: number;
@@ -26,8 +31,23 @@ export interface Company {
 const PRIVATE_QUOTA = 0.031;
 const PUBLIC_QUOTA = 0.036;
 const NAMED_THRESHOLD = 0.0155; // 1.55% 미만 시 명단공표
-const LEVY_PARTIAL = 1224;  // 만원/인/년 (부분 미달)
-const LEVY_ZERO = 1562;     // 만원/인/년 (미고용)
+
+// 2025년 고용노동부 고시 부담기초액 (월/인) — KEAD 공식 기준
+const LEVY_MONTHLY_75  = 1_258_000; // 의무고용 3/4 이상 이행
+const LEVY_MONTHLY_50  = 1_333_480; // 1/2 이상 ~ 3/4 미만
+const LEVY_MONTHLY_25  = 1_509_600; // 1/4 이상 ~ 1/2 미만
+const LEVY_MONTHLY_LOW = 1_761_200; // 1/4 미만
+const LEVY_MONTHLY_ZERO = 2_096_270; // 미고용 (최저임금 월환산액)
+
+/** 이행률(hiredCount/requiredCount)에 따른 월 부담기초액 반환 */
+function levyMonthlyRate(hiredCount: number, requiredCount: number): number {
+  if (hiredCount === 0) return LEVY_MONTHLY_ZERO;
+  const ratio = hiredCount / requiredCount;
+  if (ratio < 0.25) return LEVY_MONTHLY_LOW;
+  if (ratio < 0.50) return LEVY_MONTHLY_25;
+  if (ratio < 0.75) return LEVY_MONTHLY_50;
+  return LEVY_MONTHLY_75;
+}
 
 function calcCompany(
   id: number,
@@ -46,11 +66,11 @@ function calcCompany(
   const gap = Math.max(0, requiredCount - hiredCount);
   const isPubliclyNamed = employmentRate < NAMED_THRESHOLD * 100;
 
+  // 고용부담금: 미달인원 × 월 부담기초액(이행률 구간별) × 12개월 → 만원 단위 변환
   let estimatedLevy = 0;
-  if (hiredCount === 0) {
-    estimatedLevy = requiredCount * LEVY_ZERO;
-  } else if (gap > 0) {
-    estimatedLevy = gap * LEVY_PARTIAL;
+  if (gap > 0) {
+    const monthlyRate = levyMonthlyRate(hiredCount, requiredCount);
+    estimatedLevy = Math.round((gap * monthlyRate * 12) / 10_000);
   }
 
   let priority: 'A' | 'B' | 'C';

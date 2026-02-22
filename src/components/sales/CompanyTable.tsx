@@ -333,6 +333,7 @@ export default function CompanyTable() {
         <span>B급: 부족 6~14명</span>
         <span>C급: 부족 1~5명</span>
         <span>의무고용률: 민간 {MANDATORY_RATE_PRIVATE}%, 공공기관 {MANDATORY_RATE_PUBLIC}%</span>
+        <span>부담금: 이행률 구간별 차등 (미고용 시 최대 2,516만원/인/년)</span>
       </div>
 
       {/* 컨택 모달 */}
