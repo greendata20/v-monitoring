@@ -678,6 +678,14 @@ function LevyCalculatorSection() {
   const totalCostAfter = afterAnnualLevy + vdreamAnnual + wageAnnual;
   const netSaving = currentAnnualLevy - totalCostAfter;
 
+  // 계약 기간별 비교용 (1년 vs 3년)
+  const vdreamAnnual1Y = totalAdditional * 500_000 * 12;
+  const vdreamAnnual3Y = totalAdditional * 370_000 * 12;
+  const totalCost1Y = afterAnnualLevy + vdreamAnnual1Y + wageAnnual;
+  const totalCost3Y = afterAnnualLevy + vdreamAnnual3Y + wageAnnual;
+  const netSaving1Y = currentAnnualLevy - totalCost1Y;
+  const netSaving3Y = currentAnnualLevy - totalCost3Y;
+
   // 초과 고용 장려금 (의무 초과 인정인원 기준, 평균 단가 적용)
   const excessRecognized = Math.max(0, afterRecognized - mandatoryCount);
   const incentiveAnnual = excessRecognized * 675_000 * 12; // 평균 67.5만원/월·인
@@ -1028,6 +1036,78 @@ function LevyCalculatorSection() {
               </div>
             )}
           </div>
+
+          {/* 1년 vs 3년 계약 비교 */}
+          {totalAdditional > 0 && (
+            <div className="bg-white rounded-2xl shadow-sm p-5">
+              <h2 className="text-sm font-bold text-gray-800 mb-3">계약 기간별 비교</h2>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  {
+                    label: '1년 계약',
+                    rate: 500_000,
+                    vdream: vdreamAnnual1Y,
+                    total: totalCost1Y,
+                    net: netSaving1Y,
+                    isSelected: contractYear === 1,
+                    color: 'border-slate-300',
+                    headerBg: 'bg-slate-100 text-slate-700',
+                    netColor: netSaving1Y >= 0 ? 'text-emerald-600' : 'text-orange-500',
+                  },
+                  {
+                    label: '3년 계약',
+                    rate: 370_000,
+                    vdream: vdreamAnnual3Y,
+                    total: totalCost3Y,
+                    net: netSaving3Y,
+                    isSelected: contractYear === 3,
+                    color: 'border-indigo-300',
+                    headerBg: 'bg-indigo-500 text-white',
+                    netColor: netSaving3Y >= 0 ? 'text-emerald-600' : 'text-orange-500',
+                  },
+                ].map((opt) => (
+                  <div
+                    key={opt.label}
+                    className={`rounded-xl border-2 overflow-hidden ${opt.color} ${opt.isSelected ? 'ring-2 ring-indigo-400 ring-offset-1' : ''}`}
+                  >
+                    <div className={`px-3 py-2 flex items-center justify-between ${opt.headerBg}`}>
+                      <span className="text-xs font-bold">{opt.label}</span>
+                      <span className="text-xs opacity-80">{(opt.rate / 10000).toFixed(0)}만원/월·인</span>
+                    </div>
+                    <div className="px-3 py-3 space-y-1.5 text-xs">
+                      <div className="flex justify-between text-gray-500">
+                        <span>솔루션 비용</span>
+                        <span className="font-medium text-gray-700">{display(opt.vdream)}</span>
+                      </div>
+                      <div className="flex justify-between text-gray-500">
+                        <span>인건비</span>
+                        <span className="font-medium text-gray-700">{display(wageAnnual)}</span>
+                      </div>
+                      <div className="flex justify-between text-gray-500">
+                        <span>부담금</span>
+                        <span className="font-medium text-gray-700">{display(afterAnnualLevy)}</span>
+                      </div>
+                      <div className="flex justify-between border-t border-slate-100 pt-1.5 text-gray-700">
+                        <span className="font-semibold">총 {periodLabel} 비용</span>
+                        <span className="font-bold">{display(opt.total)}</span>
+                      </div>
+                      <div className={`flex justify-between font-bold pt-0.5 ${opt.netColor}`}>
+                        <span>순 절감</span>
+                        <span>{opt.net >= 0 ? '+' : ''}{display(opt.net)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* 절감 차이 요약 */}
+              <div className="mt-3 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2 text-xs text-indigo-700 flex items-center justify-between">
+                <span>3년 계약 선택 시 1년 계약 대비</span>
+                <span className="font-bold">
+                  {periodLabel} {display(vdreamAnnual1Y - vdreamAnnual3Y)} 추가 절감
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* 명단공표 리스크 */}
           <div className="bg-white rounded-2xl shadow-sm p-4">
