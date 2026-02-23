@@ -631,6 +631,7 @@ function LevyCalculatorSection() {
   const [contractYear, setContractYear] = useState<1 | 3>(1);
   const [hoursPerDay, setHoursPerDay] = useState(4);
   const [viewMode, setViewMode] = useState<'monthly' | 'annual'>('annual');
+  const [taxRate, setTaxRate] = useState(0.19);
 
   const HOURLY_WAGE = 10_030; // 2025년 최저시급
   const DAYS_PER_MONTH = 22;
@@ -677,6 +678,15 @@ function LevyCalculatorSection() {
   const wageAnnual = totalAdditional * monthlyWagePerPerson * 12;
   const totalCostAfter = afterAnnualLevy + vdreamAnnual + wageAnnual;
   const netSaving = currentAnnualLevy - totalCostAfter;
+
+  // 손금불산입 영향 (법인세율 적용)
+  const currentLevyTaxBurden = currentAnnualLevy * taxRate;
+  const currentEffectiveLevyCost = currentAnnualLevy * (1 + taxRate);
+  const afterEffectiveLevyCost = afterAnnualLevy * (1 + taxRate);
+  const vdreamTaxSaving = vdreamAnnual * taxRate;
+  const wageTaxSaving = wageAnnual * taxRate;
+  const effectiveTotalCostAfter = afterEffectiveLevyCost + vdreamAnnual * (1 - taxRate) + wageAnnual * (1 - taxRate);
+  const effectiveNetSaving = currentEffectiveLevyCost - effectiveTotalCostAfter;
 
   // 계약 기간별 비교용 (1년 vs 3년)
   const vdreamAnnual1Y = totalAdditional * 500_000 * 12;
@@ -765,6 +775,30 @@ function LevyCalculatorSection() {
               <p className="text-xs text-gray-400 mt-1">
                 {totalEmployees.toLocaleString()}명 × {(quotaRate * 100).toFixed(1)}% = {(totalEmployees * quotaRate).toFixed(2)} → 소수점 이하 버림
               </p>
+            </div>
+            <div>
+              <label className={labelCls}>법인세율 <span className="text-amber-500 font-normal">(손금불산입 계산용)</span></label>
+              <div className="grid grid-cols-2 gap-1.5">
+                {[
+                  { rate: 0.09, label: '9%', desc: '과표 2억 이하' },
+                  { rate: 0.19, label: '19%', desc: '2억 ~ 200억' },
+                  { rate: 0.21, label: '21%', desc: '200억 ~ 3,000억' },
+                  { rate: 0.24, label: '24%', desc: '3,000억 초과' },
+                ].map((opt) => (
+                  <button
+                    key={opt.rate}
+                    onClick={() => setTaxRate(opt.rate)}
+                    className={`py-2 px-2 text-xs font-semibold rounded-xl border-2 transition-all ${
+                      taxRate === opt.rate
+                        ? 'bg-amber-500 text-white border-amber-500'
+                        : 'bg-white text-gray-500 border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div>{opt.label}</div>
+                    <div className={`text-xs mt-0.5 ${taxRate === opt.rate ? 'opacity-75' : 'text-gray-400'}`}>{opt.desc}</div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -1108,6 +1142,85 @@ function LevyCalculatorSection() {
               </div>
             </div>
           )}
+
+          {/* 손금불산입 영향 분석 */}
+          <div className="bg-white rounded-2xl shadow-sm p-5 space-y-3">
+            <div className="flex items-center gap-2">
+              <span>⚖️</span>
+              <h2 className="text-sm font-bold text-gray-800">손금불산입 영향 분석</h2>
+              <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full font-semibold">법인세 {(taxRate * 100).toFixed(0)}%</span>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 text-xs text-amber-800 leading-relaxed">
+              고용부담금은 세무상 <strong>손금불산입</strong> 항목입니다. 비용으로 인정받지 못해 부담금액의 <strong>{(taxRate * 100).toFixed(0)}%</strong>만큼 법인세를 추가 납부하게 됩니다.
+            </div>
+
+            {/* 현재 실질 부담 */}
+            <div className="rounded-xl bg-red-50 border border-red-200 p-3 space-y-1.5 text-xs">
+              <p className="font-semibold text-red-600 mb-1">현재 실질 부담 ({periodLabel})</p>
+              <div className="flex justify-between text-gray-600">
+                <span>명목 부담금</span>
+                <span className="font-medium">{display(currentAnnualLevy)}</span>
+              </div>
+              <div className="flex justify-between text-red-500">
+                <span>손금불산입 추가 세부담 (+{(taxRate * 100).toFixed(0)}%)</span>
+                <span className="font-medium">+{display(currentLevyTaxBurden)}</span>
+              </div>
+              <div className="flex justify-between font-bold text-red-700 border-t border-red-200 pt-1.5">
+                <span>실질 총 부담</span>
+                <span className="text-base">{display(currentEffectiveLevyCost)}</span>
+              </div>
+            </div>
+
+            {/* 고용 후 실질 비용 */}
+            <div className="rounded-xl bg-blue-50 border border-blue-200 p-3 space-y-1.5 text-xs">
+              <p className="font-semibold text-blue-600 mb-1">VDREAM 고용 후 실질 비용 ({periodLabel})</p>
+              <div className="flex justify-between text-gray-600">
+                <span>부담금 (손금불산입 포함)</span>
+                <span className="font-medium">{display(afterEffectiveLevyCost)}</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>VDREAM 비용</span>
+                <span className="font-medium">{display(vdreamAnnual)}</span>
+              </div>
+              <div className="flex justify-between text-emerald-600 pl-2">
+                <span>└ 손금산입 절세효과 (-{(taxRate * 100).toFixed(0)}%)</span>
+                <span>-{display(vdreamTaxSaving)}</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>인건비</span>
+                <span className="font-medium">{display(wageAnnual)}</span>
+              </div>
+              <div className="flex justify-between text-emerald-600 pl-2">
+                <span>└ 손금산입 절세효과 (-{(taxRate * 100).toFixed(0)}%)</span>
+                <span>-{display(wageTaxSaving)}</span>
+              </div>
+              <div className="flex justify-between font-bold text-blue-700 border-t border-blue-200 pt-1.5">
+                <span>실질 총 비용</span>
+                <span className="text-base">{display(effectiveTotalCostAfter)}</span>
+              </div>
+            </div>
+
+            {/* 세후 실질 순 절감 */}
+            <div className={`rounded-xl border-2 p-3 ${effectiveNetSaving >= 0 ? 'bg-emerald-50 border-emerald-300' : 'bg-orange-50 border-orange-300'}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-xs font-bold ${effectiveNetSaving >= 0 ? 'text-emerald-700' : 'text-orange-700'}`}>
+                    세후 실질 순 절감 ({periodLabel})
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    명목 기준 {display(netSaving)} 대비{' '}
+                    <span className="text-emerald-600 font-semibold">+{display(Math.abs(effectiveNetSaving - netSaving))}</span> 추가 유리
+                  </p>
+                </div>
+                <p className={`text-xl font-bold ${effectiveNetSaving >= 0 ? 'text-emerald-600' : 'text-orange-600'}`}>
+                  {effectiveNetSaving >= 0 ? '+' : ''}{display(effectiveNetSaving)}
+                </p>
+              </div>
+            </div>
+            <p className="text-xs text-gray-400 text-center">
+              ※ 지방소득세(법인세의 10%) 포함 시 실효세율 {((taxRate * 1.1) * 100).toFixed(1)}% 적용 가능
+            </p>
+          </div>
 
           {/* 명단공표 리스크 */}
           <div className="bg-white rounded-2xl shadow-sm p-4">
