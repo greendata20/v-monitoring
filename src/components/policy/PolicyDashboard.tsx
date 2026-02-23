@@ -626,7 +626,7 @@ function LevyCalculatorSection() {
   const [orgType, setOrgType] = useState<'private' | 'public'>('private');
   const [currentMild, setCurrentMild] = useState(0);
   const [currentSevere, setCurrentSevere] = useState(0);
-  const [additionalMild, setAdditionalMild] = useState(1);
+  const [additionalMild, setAdditionalMild] = useState(0);
   const [additionalSevere, setAdditionalSevere] = useState(0);
   const [contractYear, setContractYear] = useState<1 | 3>(1);
   const [hoursPerDay, setHoursPerDay] = useState(4);
