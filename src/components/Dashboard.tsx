@@ -7,9 +7,10 @@ import GenderChart from './GenderChart';
 import EmploymentDashboard from './employment/EmploymentDashboard';
 import GlobalDashboard from './global/GlobalDashboard';
 import SalesDashboard from './sales/SalesDashboard';
+import PolicyDashboard from './policy/PolicyDashboard';
 import { TOTAL, DATA_YEAR, disabilityTypes, yearlyTrend } from '../data/disabilityData';
 
-type Tab = 'registration' | 'employment' | 'global' | 'sales';
+type Tab = 'registration' | 'employment' | 'global' | 'sales' | 'policy';
 
 const prevTotal = yearlyTrend[yearlyTrend.length - 2].total;
 const diff = TOTAL - prevTotal;
@@ -20,6 +21,7 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'employment',   label: '취업현황',    icon: '💼' },
   { id: 'global',       label: '글로벌 현황', icon: '🌍' },
   { id: 'sales',        label: '영업 대상',   icon: '🎯' },
+  { id: 'policy',       label: '정책/제도',   icon: '🏛️' },
 ];
 
 export default function Dashboard() {
@@ -198,6 +200,9 @@ export default function Dashboard() {
 
         {/* ── 영업 대상 탭 ── */}
         {activeTab === 'sales' && <SalesDashboard />}
+
+        {/* ── 정책/제도 탭 ── */}
+        {activeTab === 'policy' && <PolicyDashboard />}
       </main>
     </div>
   );
