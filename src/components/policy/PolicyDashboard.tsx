@@ -631,9 +631,9 @@ function LevyCalculatorSection() {
   const [contractYear, setContractYear] = useState<1 | 3>(1);
   const [hoursPerDay, setHoursPerDay] = useState(4);
   const [viewMode, setViewMode] = useState<'monthly' | 'annual'>('annual');
-  const [taxRate, setTaxRate] = useState(0.19);
+  const [taxRate, setTaxRate] = useState(0.20);
 
-  const HOURLY_WAGE = 10_030; // 2025년 최저시급
+  const HOURLY_WAGE = 10_320; // 2026년 최저시급
   const DAYS_PER_MONTH = 22;
   const VDREAM_RATE = contractYear === 1 ? 500_000 : 370_000;
   const quotaRate = orgType === 'private' ? 0.031 : 0.038;
@@ -780,10 +780,10 @@ function LevyCalculatorSection() {
               <label className={labelCls}>법인세율 <span className="text-amber-500 font-normal">(손금불산입 계산용)</span></label>
               <div className="grid grid-cols-2 gap-1.5">
                 {[
-                  { rate: 0.09, label: '9%', desc: '과표 2억 이하' },
-                  { rate: 0.19, label: '19%', desc: '2억 ~ 200억' },
-                  { rate: 0.21, label: '21%', desc: '200억 ~ 3,000억' },
-                  { rate: 0.24, label: '24%', desc: '3,000억 초과' },
+                  { rate: 0.10, label: '10%', desc: '과표 2억 이하' },
+                  { rate: 0.20, label: '20%', desc: '2억 ~ 200억' },
+                  { rate: 0.22, label: '22%', desc: '200억 ~ 3,000억' },
+                  { rate: 0.25, label: '25%', desc: '3,000억 초과' },
                 ].map((opt) => (
                   <button
                     key={opt.rate}
@@ -910,7 +910,7 @@ function LevyCalculatorSection() {
               <div className="mt-2 bg-slate-50 rounded-lg px-3 py-2 text-xs text-gray-500">
                 1인당 예상 월 인건비:{' '}
                 <strong className="text-gray-700">{fmt(monthlyWagePerPerson)}</strong>
-                <span className="text-gray-400 ml-1">(최저시급 10,030원 × {hoursPerDay}h × 22일)</span>
+                <span className="text-gray-400 ml-1">(최저시급 10,320원 × {hoursPerDay}h × 22일)</span>
               </div>
             </div>
           </div>
@@ -1253,7 +1253,7 @@ function LevyCalculatorSection() {
         <ul className="text-xs text-gray-400 space-y-0.5 list-disc list-inside">
           <li>의무고용 인원: 상시근로자 수 × 의무고용률 (소수점 이하 버림)</li>
           <li>부담기초액: 2025년 기준 5단계 차등 적용 (이행률 구간에 따라 산정)</li>
-          <li>최저시급: 2025년 기준 10,030원 적용</li>
+          <li>최저시급: 2026년 기준 10,320원 적용</li>
           <li>인건비: 최저시급 × 하루 근무시간 × 22일 (월 평균, 주휴수당 미포함)</li>
           <li>VDREAM 솔루션 비용: 실제 고용 인원 기준 (중증 2배 인정 미적용)</li>
           <li>고용장려금: 의무고용률 초과 인원에 대해서만 지급 (인정인원 기준), 성별·유형별 단가 상이</li>
