@@ -714,7 +714,7 @@ function LevyCalculatorSection() {
         <div>
           <p className="text-sm font-bold text-indigo-800 mb-0.5">장애인 의무고용 부담금 계산기</p>
           <p className="text-xs text-indigo-600">
-            기업 현황을 입력하면 예상 부담금과 V-Dream 솔루션 연계 고용 시 비용 절감 효과를 실시간으로 확인할 수 있습니다.
+            기업 현황을 입력하면 예상 부담금과 VDREAM 솔루션 연계 고용 시 비용 절감 효과를 실시간으로 확인할 수 있습니다.
           </p>
         </div>
       </div>
@@ -807,10 +807,10 @@ function LevyCalculatorSection() {
             </div>
           </div>
 
-          {/* V-Dream 솔루션 연계 */}
+          {/* VDREAM 솔루션 연계 */}
           <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
             <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2">
-              <span>🤝</span> V-Dream 솔루션 연계 고용 계획
+              <span>🤝</span> VDREAM 솔루션 연계 고용 계획
             </h2>
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -834,7 +834,7 @@ function LevyCalculatorSection() {
               </div>
             </div>
             <div>
-              <label className={labelCls}>V-Dream 계약 기간</label>
+              <label className={labelCls}>VDREAM 계약 기간</label>
               <div className="flex gap-2">
                 {([
                   { value: 1 as const, label: '1년 계약', price: '월 500,000원/인' },
@@ -943,7 +943,7 @@ function LevyCalculatorSection() {
 
             {/* 현재 */}
             <div className="rounded-xl bg-red-50 border border-red-200 p-4">
-              <p className="text-xs font-semibold text-red-500 mb-2">현재 (V-Dream 고용 전)</p>
+              <p className="text-xs font-semibold text-red-500 mb-2">현재 (VDREAM 고용 전)</p>
               <div className="flex items-end justify-between">
                 <div>
                   <p className="text-xs text-gray-500">의무고용 부담금 ({periodLabel})</p>
@@ -958,7 +958,7 @@ function LevyCalculatorSection() {
 
             {/* 고용 후 */}
             <div className="rounded-xl bg-blue-50 border border-blue-200 p-4 space-y-2">
-              <p className="text-xs font-semibold text-blue-600 mb-2">V-Dream 솔루션 고용 후</p>
+              <p className="text-xs font-semibold text-blue-600 mb-2">VDREAM 솔루션 고용 후</p>
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">의무고용 부담금</span>
@@ -966,7 +966,7 @@ function LevyCalculatorSection() {
                 </div>
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-gray-600">V-Dream 솔루션 비용</p>
+                    <p className="text-gray-600">VDREAM 솔루션 비용</p>
                     <p className="text-gray-400">
                       {totalAdditional}명 × {(VDREAM_RATE / 10000).toFixed(0)}만원/월
                       {viewMode === 'annual' && ' × 12개월'}
@@ -1007,7 +1007,7 @@ function LevyCalculatorSection() {
                   <span className="font-semibold text-emerald-600">+{display(levySaving)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
-                  <span>V-Dream 솔루션 비용</span>
+                  <span>VDREAM 솔루션 비용</span>
                   <span className="font-semibold text-red-500">-{display(vdreamAnnual)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
@@ -1142,7 +1142,7 @@ function LevyCalculatorSection() {
           <li>부담기초액: 2025년 기준 5단계 차등 적용 (이행률 구간에 따라 산정)</li>
           <li>최저시급: 2025년 기준 10,030원 적용</li>
           <li>인건비: 최저시급 × 하루 근무시간 × 22일 (월 평균, 주휴수당 미포함)</li>
-          <li>V-Dream 솔루션 비용: 실제 고용 인원 기준 (중증 2배 인정 미적용)</li>
+          <li>VDREAM 솔루션 비용: 실제 고용 인원 기준 (중증 2배 인정 미적용)</li>
           <li>고용장려금: 의무고용률 초과 인원에 대해서만 지급 (인정인원 기준), 성별·유형별 단가 상이</li>
           <li>본 계산기는 참고용이며, 정확한 부담금은 KEAD 확인을 권장합니다.</li>
         </ul>
