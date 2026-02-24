@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import StatCard from '../StatCard';
 import CompanyTable from './CompanyTable';
 import SalesIndustryChart from './SalesIndustryChart';
@@ -5,18 +6,24 @@ import { useApp } from '../../contexts/AppContext';
 import {
   companies, SALES_DATA_YEAR, priorityColors, priorityLabels,
 } from '../../data/salesData';
-
-const deficitCompanies = companies.filter((c) => c.gap > 0);
-const namedCompanies = companies.filter((c) => c.isPubliclyNamed);
-const totalGap = deficitCompanies.reduce((s, c) => s + c.gap, 0);
-const totalLevy = deficitCompanies.reduce((s, c) => s + c.estimatedLevy, 0);
-const aCount = companies.filter((c) => c.priority === 'A').length;
-const bCount = companies.filter((c) => c.priority === 'B').length;
-
-const topLevy = [...deficitCompanies].sort((a, b) => b.estimatedLevy - a.estimatedLevy).slice(0, 10);
+import { useManualCompanies } from '../../hooks/useManualCompanies';
 
 export default function SalesDashboard() {
   const { t } = useApp();
+  const { manualCompanies, addManualCompany, removeManualCompany } = useManualCompanies();
+
+  const allCompanies = useMemo(() => [...companies, ...manualCompanies], [manualCompanies]);
+
+  const deficitCompanies = useMemo(() => allCompanies.filter((c) => c.gap > 0), [allCompanies]);
+  const namedCompanies = useMemo(() => allCompanies.filter((c) => c.isPubliclyNamed), [allCompanies]);
+  const totalGap = useMemo(() => deficitCompanies.reduce((s, c) => s + c.gap, 0), [deficitCompanies]);
+  const totalLevy = useMemo(() => deficitCompanies.reduce((s, c) => s + c.estimatedLevy, 0), [deficitCompanies]);
+  const aCount = useMemo(() => allCompanies.filter((c) => c.priority === 'A').length, [allCompanies]);
+  const bCount = useMemo(() => allCompanies.filter((c) => c.priority === 'B').length, [allCompanies]);
+  const topLevy = useMemo(
+    () => [...deficitCompanies].sort((a, b) => b.estimatedLevy - a.estimatedLevy).slice(0, 10),
+    [deficitCompanies],
+  );
 
   return (
     <div className="space-y-6">
@@ -32,10 +39,10 @@ export default function SalesDashboard() {
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title={t('sales.statCompanies')}
-          value={`${companies.length}개사`}
+          value={`${allCompanies.length}개사`}
           sub={t('sales.statCompaniesSub', {
             deficit: deficitCompanies.length,
-            pct: ((deficitCompanies.length / companies.length) * 100).toFixed(0),
+            pct: ((deficitCompanies.length / allCompanies.length) * 100).toFixed(0),
           })}
           accent="bg-blue-500"
           icon="🏢"
@@ -66,7 +73,7 @@ export default function SalesDashboard() {
       {/* 우선순위 현황 */}
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {(['A', 'B', 'C'] as const).map((p) => {
-          const list = companies.filter((c) => c.priority === p);
+          const list = allCompanies.filter((c) => c.priority === p);
           const pGap = list.reduce((s, c) => s + c.gap, 0);
           const pLevy = list.reduce((s, c) => s + c.estimatedLevy, 0);
           return (
@@ -177,7 +184,11 @@ export default function SalesDashboard() {
       )}
 
       {/* 전체 기업 테이블 */}
-      <CompanyTable />
+      <CompanyTable
+        manualCompanies={manualCompanies}
+        onAdd={addManualCompany}
+        onRemove={removeManualCompany}
+      />
 
       {/* 부담금 안내 */}
       <section className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-5">
