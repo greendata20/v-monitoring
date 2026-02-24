@@ -682,6 +682,18 @@ function LevyCalculatorSection() {
   const effectiveTotalCostAfter = afterEffectiveLevyCost + vdreamAnnual * (1 - taxRate) + wageAnnual * (1 - taxRate);
   const effectiveNetSaving = currentEffectiveLevyCost - effectiveTotalCostAfter;
 
+  // 브이드림 도입 절감률 (세후 실질)
+  const savingRate = currentEffectiveLevyCost > 0
+    ? (effectiveNetSaving / currentEffectiveLevyCost) * 100 : 0;
+  const remainingRecognized = Math.max(0, mandatoryCount - currentRecognized);
+  const maxAdditionalSevere = remainingRecognized > 0 ? Math.ceil(remainingRecognized / 2) : 0;
+  const maxVdreamCostCalc = maxAdditionalSevere * VDREAM_RATE * 12;
+  const maxWageCostCalc = maxAdditionalSevere * monthlyWagePerPerson * 12;
+  const maxEffectiveNetSaving = currentEffectiveLevyCost
+    - (maxVdreamCostCalc * (1 - taxRate) + maxWageCostCalc * (1 - taxRate));
+  const maxSavingRate = currentEffectiveLevyCost > 0
+    ? (maxEffectiveNetSaving / currentEffectiveLevyCost) * 100 : 0;
+
   // 계약 기간별 비교용 (1년 vs 3년)
   const vdreamAnnual1Y = totalAdditional * 500_000 * 12;
   const vdreamAnnual3Y = totalAdditional * 370_000 * 12;
@@ -1073,8 +1085,6 @@ function LevyCalculatorSection() {
                     total: totalCost1Y,
                     net: netSaving1Y,
                     isSelected: contractYear === 1,
-                    color: 'border-slate-300',
-                    headerBg: 'bg-slate-100 text-slate-700',
                     netColor: netSaving1Y >= 0 ? 'text-emerald-600' : 'text-orange-500',
                   },
                   {
@@ -1084,16 +1094,14 @@ function LevyCalculatorSection() {
                     total: totalCost3Y,
                     net: netSaving3Y,
                     isSelected: contractYear === 3,
-                    color: 'border-indigo-300',
-                    headerBg: 'bg-indigo-500 text-white',
                     netColor: netSaving3Y >= 0 ? 'text-emerald-600' : 'text-orange-500',
                   },
                 ].map((opt) => (
                   <div
                     key={opt.label}
-                    className={`rounded-xl border-2 overflow-hidden ${opt.color} ${opt.isSelected ? 'ring-2 ring-indigo-400 ring-offset-1' : ''}`}
+                    className={`rounded-xl border-2 overflow-hidden ${opt.isSelected ? 'border-indigo-400 ring-2 ring-indigo-300 ring-offset-1' : 'border-slate-200'}`}
                   >
-                    <div className={`px-3 py-2 flex items-center justify-between ${opt.headerBg}`}>
+                    <div className={`px-3 py-2 flex items-center justify-between ${opt.isSelected ? 'bg-indigo-500 text-white' : 'bg-slate-100 text-slate-700'}`}>
                       <span className="text-xs font-bold">{opt.label}</span>
                       <span className="text-xs opacity-80">{(opt.rate / 10000).toFixed(0)}만원/월·인</span>
                     </div>
@@ -1210,6 +1218,71 @@ function LevyCalculatorSection() {
               {t('policy.calcLocalTaxNote', { rate: ((taxRate * 1.1) * 100).toFixed(1) })}
             </p>
           </div>
+
+          {/* 브이드림 도입 절감률 */}
+          {currentEffectiveLevyCost > 0 && (
+            <div className="bg-white rounded-2xl shadow-sm p-5 space-y-3">
+              <div className="flex items-center gap-2">
+                <span>📉</span>
+                <h2 className="text-sm font-bold text-gray-800">{t('policy.calcSavingRateTitle')}</h2>
+              </div>
+              <p className="text-xs text-gray-500 -mt-1">{t('policy.calcSavingRateSub')}</p>
+
+              {/* 현재 시나리오 */}
+              <div className={`rounded-xl p-4 border ${savingRate > 0 ? 'bg-emerald-50 border-emerald-200' : savingRate < 0 ? 'bg-orange-50 border-orange-200' : 'bg-slate-50 border-slate-200'}`}>
+                <p className="text-xs font-semibold text-gray-500 mb-2">{t('policy.calcSavingCurrent')}</p>
+                <div className="flex items-end justify-between">
+                  <span className={`text-3xl font-bold ${savingRate > 0 ? 'text-emerald-600' : savingRate < 0 ? 'text-orange-600' : 'text-gray-400'}`}>
+                    {savingRate < 0 ? '-' : ''}{Math.abs(savingRate).toFixed(1)}%
+                  </span>
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${savingRate > 0 ? 'bg-emerald-100 text-emerald-700' : savingRate < 0 ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-500'}`}>
+                    {savingRate >= 0 ? t('policy.calcSavingReduced') : t('policy.calcSavingIncreased')}
+                  </span>
+                </div>
+                <div className="mt-2 bg-gray-200 rounded-full h-2 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all ${savingRate > 0 ? 'bg-emerald-400' : 'bg-orange-400'}`}
+                    style={{ width: `${Math.min(100, Math.max(0, Math.abs(savingRate)))}%` }}
+                  />
+                </div>
+                <p className="text-xs text-gray-400 mt-1.5">
+                  {t('policy.calcSavingNetLabel')}: <span className={`font-semibold ${effectiveNetSaving >= 0 ? 'text-emerald-600' : 'text-orange-600'}`}>{effectiveNetSaving >= 0 ? '+' : ''}{display(effectiveNetSaving)}</span>
+                </p>
+              </div>
+
+              {/* 최대 절감 가능 */}
+              {remainingRecognized > 0 ? (
+                <div className="rounded-xl p-4 bg-blue-50 border border-blue-200">
+                  <p className="text-xs font-semibold text-gray-500 mb-2">{t('policy.calcSavingMax')}</p>
+                  <div className="flex items-end justify-between">
+                    <span className={`text-3xl font-bold ${maxSavingRate >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
+                      {maxSavingRate < 0 ? '-' : ''}{Math.abs(maxSavingRate).toFixed(1)}%
+                    </span>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${maxSavingRate >= 0 ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
+                      {maxSavingRate >= 0 ? t('policy.calcSavingReduced') : t('policy.calcSavingIncreased')}
+                    </span>
+                  </div>
+                  <div className="mt-2 bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${maxSavingRate >= 0 ? 'bg-blue-400' : 'bg-orange-400'}`}
+                      style={{ width: `${Math.min(100, Math.max(0, Math.abs(maxSavingRate)))}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1.5">
+                    {t('policy.calcSavingMaxDesc', { n: maxAdditionalSevere })}
+                  </p>
+                  <p className={`text-xs font-semibold mt-1 ${maxEffectiveNetSaving >= 0 ? 'text-blue-700' : 'text-orange-600'}`}>
+                    {t('policy.calcSavingNetLabel')}: {maxEffectiveNetSaving >= 0 ? '+' : ''}{display(maxEffectiveNetSaving)}
+                  </p>
+                </div>
+              ) : (
+                <div className="rounded-xl p-3 bg-emerald-50 border border-emerald-200 flex items-center gap-2">
+                  <span>✅</span>
+                  <p className="text-xs text-emerald-700 font-semibold">{t('policy.calcSavingAchieved')}</p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* 명단공표 리스크 */}
           <div className="bg-white rounded-2xl shadow-sm p-4">
