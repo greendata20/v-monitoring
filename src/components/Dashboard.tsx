@@ -245,6 +245,10 @@ export default function Dashboard() {
         {/* ── 정책/제도 탭 ── */}
         {activeTab === 'policy' && <PolicyDashboard />}
       </main>
+
+      <footer className="text-center text-xs text-gray-400 py-6 border-t border-slate-200 bg-white mt-2">
+        Designed &amp; Developed by <span className="font-semibold text-gray-500">Ho J. Lee</span> · 2026.02
+      </footer>
     </div>
   );
 }
