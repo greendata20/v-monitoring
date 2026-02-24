@@ -328,7 +328,7 @@ export const companies: Company[] = [
 ];
 
 // 집계 헬퍼
-export const SALES_DATA_YEAR = 2025;
+export const SALES_DATA_YEAR = 2026;
 export const MANDATORY_RATE_PRIVATE = 3.1;
 export const MANDATORY_RATE_PUBLIC = 3.6;
 

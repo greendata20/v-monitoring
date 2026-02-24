@@ -171,5 +171,5 @@ export const sectorYearlyTrend: SectorYearlyTrend[] = [
   { year: 2025, private: 210000, public: 40600, government: 49600 },
 ];
 
-export const EMPLOYMENT_YEAR = 2025;
+export const EMPLOYMENT_YEAR = 2026;
 export const TOTAL_EMPLOYED = employmentByType.reduce((s, d) => s + d.employed, 0);

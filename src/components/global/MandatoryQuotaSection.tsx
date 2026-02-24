@@ -3,6 +3,7 @@ import {
   ResponsiveContainer, Cell, LabelList,
 } from 'recharts';
 import { quotaCountries, nonQuotaCountries } from '../../data/globalData';
+import { useApp } from '../../contexts/AppContext';
 
 const SYSTEM_BADGE: Record<string, string> = {
   '부담금': 'bg-amber-50 text-amber-700',
@@ -10,18 +11,19 @@ const SYSTEM_BADGE: Record<string, string> = {
   '정부만': 'bg-blue-50 text-blue-600',
 };
 
-const CustomTooltip = ({ active, payload }: {
+const CustomTooltip = ({ active, payload, t }: {
   active?: boolean;
   payload?: Array<{ payload: typeof quotaCountries[0]; value: number }>;
+  t: (key: string) => string;
 }) => {
   if (active && payload && payload.length) {
     const d = payload[0].payload;
     return (
       <div className="bg-white border border-gray-100 rounded-xl shadow-lg p-3 text-sm max-w-xs">
         <p className="font-bold text-gray-800">{d.country} ({d.countryEn})</p>
-        <p className="text-blue-500 font-semibold">의무고용률: {d.quotaRate}</p>
+        <p className="text-blue-500 font-semibold">{t('global.quotaTooltipRate')}: {d.quotaRate}</p>
         <p className="text-xs text-gray-600 mt-1">{d.note}</p>
-        <p className="text-xs text-gray-400 mt-0.5">시행: {d.lawYear}년 · 최소 {d.companySizeMin || '제한없음'}인 이상</p>
+        <p className="text-xs text-gray-400 mt-0.5">{t('global.quotaTooltipYear')}: {d.lawYear}년 · {t('global.quotaColMin')} {d.companySizeMin || t('global.quotaTooltipNoLimit')}인 이상</p>
       </div>
     );
   }
@@ -29,15 +31,16 @@ const CustomTooltip = ({ active, payload }: {
 };
 
 export default function MandatoryQuotaSection() {
+  const { t } = useApp();
   const sorted = [...quotaCountries].sort((a, b) => b.quotaRateNum - a.quotaRateNum);
 
   return (
     <div className="space-y-6">
       {/* 의무고용률 막대 차트 */}
       <div className="bg-white rounded-2xl shadow-sm p-5">
-        <h2 className="text-base font-bold text-gray-800 mb-1">국가별 장애인 의무고용률 비교</h2>
+        <h2 className="text-base font-bold text-gray-800 mb-1">{t('global.quotaChartTitle')}</h2>
         <p className="text-xs text-gray-400 mb-4">
-          🟡 부담금 납부 방식 &nbsp;|&nbsp; 🔴 강제 의무 방식 &nbsp;|&nbsp; 🔵 공공기관·정부만 적용
+          {t('global.quotaChartLegend')}
         </p>
         <ResponsiveContainer width="100%" height={320}>
           <BarChart data={sorted} margin={{ top: 0, right: 60, left: 10, bottom: 40 }}>
@@ -58,7 +61,7 @@ export default function MandatoryQuotaSection() {
               tickLine={false}
               domain={[0, 8]}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
+            <Tooltip content={<CustomTooltip t={t} />} cursor={{ fill: '#f8fafc' }} />
             <Bar dataKey="quotaRateNum" radius={[6, 6, 0, 0]} maxBarSize={40}>
               {sorted.map((entry, i) => {
                 const color =
@@ -79,18 +82,18 @@ export default function MandatoryQuotaSection() {
 
       {/* 상세 테이블 */}
       <div className="bg-white rounded-2xl shadow-sm p-5">
-        <h2 className="text-base font-bold text-gray-800 mb-4">의무고용제 시행국 상세 현황</h2>
+        <h2 className="text-base font-bold text-gray-800 mb-4">{t('global.quotaTableTitle')}</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100">
-                <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500">국가</th>
-                <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500">지역</th>
-                <th className="text-right py-2 px-3 text-xs font-semibold text-gray-500">의무고용률</th>
-                <th className="text-right py-2 px-3 text-xs font-semibold text-gray-500">최소 규모</th>
-                <th className="text-center py-2 px-3 text-xs font-semibold text-gray-500">제도 유형</th>
-                <th className="text-right py-2 px-3 text-xs font-semibold text-gray-500">시행 연도</th>
-                <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500 hidden lg:table-cell">비고</th>
+                <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500">{t('global.quotaColCountry')}</th>
+                <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500">{t('global.quotaColRegion')}</th>
+                <th className="text-right py-2 px-3 text-xs font-semibold text-gray-500">{t('global.quotaColRate')}</th>
+                <th className="text-right py-2 px-3 text-xs font-semibold text-gray-500">{t('global.quotaColMin')}</th>
+                <th className="text-center py-2 px-3 text-xs font-semibold text-gray-500">{t('global.quotaColSystem')}</th>
+                <th className="text-right py-2 px-3 text-xs font-semibold text-gray-500">{t('global.quotaColYear')}</th>
+                <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500 hidden lg:table-cell">{t('global.quotaColNote')}</th>
               </tr>
             </thead>
             <tbody>
@@ -121,7 +124,7 @@ export default function MandatoryQuotaSection() {
                     </span>
                   </td>
                   <td className="py-2.5 px-3 text-right text-xs text-gray-600">
-                    {d.companySizeMin ? `${d.companySizeMin}인↑` : '제한없음'}
+                    {d.companySizeMin ? `${d.companySizeMin}${t('global.quotaMinSuffix')}` : t('global.quotaNoMin')}
                   </td>
                   <td className="py-2.5 px-3 text-center">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${SYSTEM_BADGE[d.system]}`}>
@@ -139,10 +142,9 @@ export default function MandatoryQuotaSection() {
 
       {/* 의무고용제 미시행국 */}
       <div className="bg-white rounded-2xl shadow-sm p-5">
-        <h2 className="text-base font-bold text-gray-800 mb-1">의무고용제 미시행국 (차별금지·합리적 편의 방식)</h2>
+        <h2 className="text-base font-bold text-gray-800 mb-1">{t('global.nonQuotaTitle')}</h2>
         <p className="text-xs text-gray-400 mb-4">
-          쿼터 없이 차별금지법·합리적 편의 의무를 통해 장애인 고용을 촉진하는 국가들입니다.
-          일부는 고용률이 의무고용제 시행국보다 높습니다.
+          {t('global.nonQuotaSub')}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {nonQuotaCountries.map((c) => (

@@ -9,6 +9,8 @@ import GlobalDashboard from './global/GlobalDashboard';
 import SalesDashboard from './sales/SalesDashboard';
 import PolicyDashboard from './policy/PolicyDashboard';
 import { TOTAL, DATA_YEAR, disabilityTypes, yearlyTrend } from '../data/disabilityData';
+import { useApp } from '../contexts/AppContext';
+import type { Lang } from '../i18n/translations';
 
 type Tab = 'registration' | 'employment' | 'global' | 'sales' | 'policy';
 
@@ -16,16 +18,23 @@ const prevTotal = yearlyTrend[yearlyTrend.length - 2].total;
 const diff = TOTAL - prevTotal;
 const topType = [...disabilityTypes].sort((a, b) => b.count - a.count)[0];
 
-const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: 'registration', label: '등록현황',    icon: '📋' },
-  { id: 'employment',   label: '취업현황',    icon: '💼' },
-  { id: 'global',       label: '글로벌 현황', icon: '🌍' },
-  { id: 'sales',        label: '영업 대상',   icon: '🎯' },
-  { id: 'policy',       label: '정책/제도',   icon: '🏛️' },
+const TAB_IDS: { id: Tab; key: string; icon: string }[] = [
+  { id: 'registration', key: 'nav.registration', icon: '📋' },
+  { id: 'employment',   key: 'nav.employment',   icon: '💼' },
+  { id: 'global',       key: 'nav.global',       icon: '🌍' },
+  { id: 'sales',        key: 'nav.sales',        icon: '🎯' },
+  { id: 'policy',       key: 'nav.policy',       icon: '🏛️' },
+];
+
+const LANG_OPTIONS: { value: Lang; label: string }[] = [
+  { value: 'ko', label: '한' },
+  { value: 'ja', label: '日' },
+  { value: 'en', label: 'EN' },
 ];
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('registration');
+  const { t, lang, setLang, isDark, toggleDark } = useApp();
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -33,41 +42,73 @@ export default function Dashboard() {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-0">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 pb-3">
+            {/* Left: logo + title */}
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-3">
                 <img
                   src="https://sjinfotec.com/jexpo/smartwork/upload/2023/vdream/%EB%B8%8C%EC%9D%B4%EB%93%9C%EB%A6%BC%20%ED%95%9C%EA%B8%80%EB%A1%9C%EA%B3%A0.png"
-                  alt="브이드림 로고"
+                  alt="VDREAM"
                   className="h-8 w-auto object-contain flex-shrink-0 self-start mt-0.5"
                 />
-                <h1 className="text-lg sm:text-xl font-bold text-gray-900 leading-none self-center">
-                  장애인 고용현황 인사이트 플랫폼
+                <h1 className="text-base sm:text-lg font-bold text-gray-900 leading-tight self-center">
+                  {t('header.title')}
                 </h1>
               </div>
               <p className="text-xs text-gray-400">
-                출처: 보건복지부 · 한국장애인고용공단(KEAD) · {DATA_YEAR}년 기준 · 브이드림 내부용
+                {t('header.source')} · {DATA_YEAR}년 {t('header.yearBasis')} · {t('header.internalUse')}
               </p>
             </div>
-            <span className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full self-start sm:self-auto">
-              <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-              {DATA_YEAR}년 최신 데이터
-            </span>
+
+            {/* Right: lang switcher + dark toggle + badge */}
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              {/* Language switcher */}
+              <div className="flex rounded-lg border border-slate-200 overflow-hidden text-xs font-bold">
+                {LANG_OPTIONS.map(({ value, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => setLang(value)}
+                    className={`px-2.5 py-1.5 transition-colors ${
+                      lang === value
+                        ? 'bg-blue-500 text-white'
+                        : 'text-gray-500 hover:bg-slate-50'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Dark mode toggle */}
+              <button
+                onClick={toggleDark}
+                title={isDark ? t('ui.lightMode') : t('ui.darkMode')}
+                className="p-1.5 rounded-lg text-gray-500 hover:bg-slate-100 transition-colors text-base"
+              >
+                {isDark ? '☀️' : '🌙'}
+              </button>
+
+              {/* Latest data badge */}
+              <span className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full">
+                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                {DATA_YEAR}년 {t('header.latestData')}
+              </span>
+            </div>
           </div>
 
           {/* Tab Navigation */}
-          <nav className="flex gap-1">
-            {TABS.map((tab) => (
+          <nav className="tab-nav -mx-4 sm:mx-0 flex gap-0.5 sm:gap-1 overflow-x-auto px-4 sm:px-0 pb-px">
+            {TAB_IDS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2.5 text-sm font-semibold rounded-t-lg border-b-2 transition-colors ${
+                className={`whitespace-nowrap flex-shrink-0 px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-t-lg border-b-2 transition-colors ${
                   activeTab === tab.id
                     ? 'border-blue-500 text-blue-600 bg-blue-50'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-slate-50'
                 }`}
               >
-                <span className="mr-1.5">{tab.icon}</span>
-                {tab.label}
+                <span className="mr-1 sm:mr-1.5">{tab.icon}</span>
+                {t(tab.key)}
               </button>
             ))}
           </nav>
@@ -81,30 +122,30 @@ export default function Dashboard() {
             {/* 요약 카드 */}
             <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard
-                title="총 등록 장애인"
+                title={t('registration.statTotal')}
                 value={`${(TOTAL / 10000).toFixed(1)}만 명`}
                 sub={`${TOTAL.toLocaleString()}명`}
                 accent="bg-blue-500"
                 icon="👥"
               />
               <StatCard
-                title="전년 대비 증가"
+                title={t('registration.statYoY')}
                 value={`+${diff.toLocaleString()}명`}
-                sub={`+${((diff / prevTotal) * 100).toFixed(2)}% 증가`}
+                sub={t('registration.statYoYSub', { pct: ((diff / prevTotal) * 100).toFixed(2) })}
                 accent="bg-emerald-500"
                 icon="📈"
               />
               <StatCard
-                title="최다 등록 장애 유형"
+                title={t('registration.statTopType')}
                 value={topType.name}
                 sub={`${topType.count.toLocaleString()}명 (${((topType.count / TOTAL) * 100).toFixed(1)}%)`}
                 accent="bg-violet-500"
                 icon="🏷️"
               />
               <StatCard
-                title="등록 장애 유형 수"
-                value="15개 유형"
-                sub="신체적 11종 · 정신적 4종"
+                title={t('registration.statTypeCount')}
+                value={t('registration.statTypeCountVal')}
+                sub={t('registration.statTypeCountSub')}
                 accent="bg-orange-500"
                 icon="📊"
               />
@@ -128,17 +169,17 @@ export default function Dashboard() {
 
             {/* 상세 테이블 */}
             <section className="bg-white rounded-2xl shadow-sm p-5">
-              <h2 className="text-base font-bold text-gray-800 mb-4">장애 유형별 상세 현황</h2>
+              <h2 className="text-base font-bold text-gray-800 mb-4">{t('registration.tableTitle')}</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-100">
-                      <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500 w-8">순위</th>
-                      <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500">장애 유형</th>
-                      <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500">분류</th>
-                      <th className="text-right py-2 px-3 text-xs font-semibold text-gray-500">등록 인원</th>
-                      <th className="text-right py-2 px-3 text-xs font-semibold text-gray-500">비율</th>
-                      <th className="py-2 px-3 text-xs font-semibold text-gray-500">비율 그래프</th>
+                      <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500 w-8">{t('registration.colRank')}</th>
+                      <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500">{t('registration.colType')}</th>
+                      <th className="text-left py-2 px-3 text-xs font-semibold text-gray-500">{t('registration.colCategory')}</th>
+                      <th className="text-right py-2 px-3 text-xs font-semibold text-gray-500">{t('registration.colCount')}</th>
+                      <th className="text-right py-2 px-3 text-xs font-semibold text-gray-500">{t('registration.colRatio')}</th>
+                      <th className="py-2 px-3 text-xs font-semibold text-gray-500">{t('registration.colGraph')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -161,7 +202,7 @@ export default function Dashboard() {
                                   ? 'bg-blue-50 text-blue-600'
                                   : 'bg-purple-50 text-purple-600'
                               }`}>
-                                {d.category}
+                                {d.category === '신체적' ? t('registration.catPhysical') : t('registration.catMental')}
                               </span>
                             </td>
                             <td className="py-2.5 px-3 text-right font-mono text-gray-700 text-xs">
@@ -187,7 +228,7 @@ export default function Dashboard() {
             </section>
 
             <footer className="text-center text-xs text-gray-400 pb-4">
-              본 자료는 보건복지부 {DATA_YEAR}년 등록장애인 현황 통계를 기반으로 합니다.
+              {t('registration.footer', { year: DATA_YEAR })}
             </footer>
           </div>
         )}

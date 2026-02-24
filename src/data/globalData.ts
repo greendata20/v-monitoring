@@ -145,5 +145,5 @@ export const nonQuotaCountries: NonQuotaCountry[] = [
 // ── 요약 상수 ─────────────────────────────────────────────────────
 export const GLOBAL_TOTAL_DISABLED = 1300;  // 백만 명
 export const GLOBAL_DISABILITY_RATE = 16.0; // %
-export const GLOBAL_DATA_YEAR = 2025;
+export const GLOBAL_DATA_YEAR = 2026;
 export const OECD_AVG_EMPLOYMENT_RATE = 47; // %

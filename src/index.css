@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  font-size: 17px;
+}
+
 body {
   margin: 0;
   min-width: 320px;
@@ -9,3 +13,156 @@ body {
   background-color: #f1f5f9;
   font-family: 'Pretendard', 'Noto Sans KR', system-ui, sans-serif;
 }
+
+/* ─── Dark mode: page & card backgrounds ─────────────────── */
+.dark body { background-color: #0f172a; }
+
+.dark .bg-white          { background-color: #1e293b; }
+.dark .bg-slate-50       { background-color: #1e293b; }
+.dark .bg-slate-100      { background-color: #334155; }
+.dark .bg-slate-200      { background-color: #475569; }
+.dark .bg-gray-50        { background-color: #1e293b; }
+.dark .bg-gray-100       { background-color: #334155; }
+
+/* Colored tint backgrounds */
+.dark .bg-blue-50        { background-color: rgba(59,130,246,0.12);  }
+.dark .bg-red-50         { background-color: rgba(239,68,68,0.12);   }
+.dark .bg-amber-50       { background-color: rgba(245,158,11,0.12);  }
+.dark .bg-emerald-50     { background-color: rgba(16,185,129,0.10);  }
+.dark .bg-green-50       { background-color: rgba(34,197,94,0.10);   }
+.dark .bg-violet-50      { background-color: rgba(139,92,246,0.12);  }
+.dark .bg-indigo-50      { background-color: rgba(99,102,241,0.12);  }
+.dark .bg-purple-50      { background-color: rgba(168,85,247,0.10);  }
+.dark .bg-orange-50      { background-color: rgba(249,115,22,0.12);  }
+.dark .bg-pink-50        { background-color: rgba(236,72,153,0.10);  }
+.dark .bg-lime-50        { background-color: rgba(132,204,22,0.10);  }
+
+/* ─── Dark mode: text colors ─────────────────────────────── */
+.dark .text-gray-900     { color: #f8fafc; }
+.dark .text-gray-800     { color: #f1f5f9; }
+.dark .text-gray-700     { color: #e2e8f0; }
+.dark .text-gray-600     { color: #cbd5e1; }
+.dark .text-gray-500     { color: #94a3b8; }
+.dark .text-gray-400     { color: #64748b; }
+.dark .text-gray-300     { color: #475569; }
+.dark .text-gray-200     { color: #334155; }
+
+/* Colored text in tinted sections */
+.dark .text-blue-600     { color: #93c5fd; }
+.dark .text-blue-700     { color: #93c5fd; }
+.dark .text-blue-800     { color: #bfdbfe; }
+.dark .text-red-600      { color: #fca5a5; }
+.dark .text-red-700      { color: #fca5a5; }
+.dark .text-red-800      { color: #fecaca; }
+.dark .text-red-500      { color: #f87171; }
+.dark .text-amber-600    { color: #fcd34d; }
+.dark .text-amber-700    { color: #fcd34d; }
+.dark .text-amber-800    { color: #fde68a; }
+.dark .text-amber-500    { color: #fbbf24; }
+.dark .text-emerald-600  { color: #6ee7b7; }
+.dark .text-emerald-700  { color: #6ee7b7; }
+.dark .text-emerald-800  { color: #a7f3d0; }
+.dark .text-emerald-500  { color: #34d399; }
+.dark .text-emerald-400  { color: #34d399; }
+.dark .text-violet-600   { color: #c4b5fd; }
+.dark .text-violet-700   { color: #c4b5fd; }
+.dark .text-indigo-600   { color: #a5b4fc; }
+.dark .text-indigo-700   { color: #a5b4fc; }
+.dark .text-indigo-800   { color: #c7d2fe; }
+.dark .text-green-700    { color: #86efac; }
+.dark .text-blue-500     { color: #60a5fa; }
+.dark .text-orange-600   { color: #fb923c; }
+.dark .text-orange-500   { color: #fb923c; }
+.dark .text-lime-700     { color: #a3e635; }
+
+/* ─── Dark mode: borders ─────────────────────────────────── */
+.dark .border-slate-50   { border-color: #334155; }
+.dark .border-slate-100  { border-color: #334155; }
+.dark .border-slate-200  { border-color: #475569; }
+.dark .border-slate-300  { border-color: #64748b; }
+.dark .border-gray-100   { border-color: #334155; }
+.dark .border-gray-200   { border-color: #475569; }
+.dark .border-gray-300   { border-color: #64748b; }
+.dark .border-white      { border-color: rgba(255,255,255,0.1); }
+
+.dark .border-blue-100   { border-color: rgba(59,130,246,0.25);   }
+.dark .border-blue-200   { border-color: rgba(59,130,246,0.35);   }
+.dark .border-blue-300   { border-color: rgba(59,130,246,0.50);   }
+.dark .border-red-100    { border-color: rgba(239,68,68,0.25);    }
+.dark .border-red-200    { border-color: rgba(239,68,68,0.35);    }
+.dark .border-amber-100  { border-color: rgba(245,158,11,0.25);   }
+.dark .border-amber-200  { border-color: rgba(245,158,11,0.35);   }
+.dark .border-emerald-100{ border-color: rgba(16,185,129,0.25);   }
+.dark .border-emerald-200{ border-color: rgba(16,185,129,0.35);   }
+.dark .border-emerald-300{ border-color: rgba(16,185,129,0.50);   }
+.dark .border-violet-100 { border-color: rgba(139,92,246,0.25);   }
+.dark .border-violet-200 { border-color: rgba(139,92,246,0.35);   }
+.dark .border-indigo-100 { border-color: rgba(99,102,241,0.25);   }
+.dark .border-indigo-200 { border-color: rgba(99,102,241,0.35);   }
+.dark .border-orange-300 { border-color: rgba(249,115,22,0.50);   }
+.dark .border-lime-200   { border-color: rgba(132,204,22,0.30);   }
+
+/* ─── Dark mode: card shadow → subtle ring ───────────────── */
+.dark .shadow-sm {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+}
+
+/* ─── Dark mode: gradient backgrounds ───────────────────── */
+.dark .from-blue-50   { --tw-gradient-from: rgba(59,130,246,0.10);  }
+.dark .to-indigo-50   { --tw-gradient-to:   rgba(99,102,241,0.10);  }
+.dark .from-red-50    { --tw-gradient-from: rgba(239,68,68,0.10);   }
+.dark .to-orange-50   { --tw-gradient-to:   rgba(249,115,22,0.10);  }
+.dark .from-indigo-50 { --tw-gradient-from: rgba(99,102,241,0.10);  }
+.dark .to-violet-50   { --tw-gradient-to:   rgba(139,92,246,0.10);  }
+
+/* ─── Dark mode: form inputs ─────────────────────────────── */
+.dark input[type="number"],
+.dark select {
+  background-color: #334155;
+  color: #f1f5f9;
+  border-color: #475569;
+}
+
+/* ─── Dark mode: Recharts chart elements ─────────────────── */
+/* Grid lines */
+.dark .recharts-cartesian-grid-horizontal line,
+.dark .recharts-cartesian-grid-vertical line {
+  stroke: #334155;
+}
+.dark .recharts-polar-grid-angle line,
+.dark .recharts-polar-grid-concentric-polygon {
+  stroke: #334155;
+}
+/* Axis tick labels */
+.dark .recharts-cartesian-axis-tick text,
+.dark .recharts-polar-angle-axis-tick text,
+.dark .recharts-polar-radius-axis-tick text {
+  fill: #64748b;
+}
+/* Default tooltip */
+.dark .recharts-default-tooltip {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+.dark .recharts-tooltip-label {
+  color: #e2e8f0 !important;
+}
+.dark .recharts-tooltip-item {
+  color: #cbd5e1 !important;
+}
+/* Legend text */
+.dark .recharts-legend-item-text {
+  color: #94a3b8 !important;
+}
+/* Recharts surface (SVG container) */
+.dark .recharts-wrapper svg {
+  background: transparent;
+}
+
+/* ─── Dark mode: modal/overlay ───────────────────────────── */
+.dark .bg-black\/50 { background-color: rgba(0,0,0,0.7); }
+
+/* ─── Scrollbar hiding for tab nav ──────────────────────── */
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-nav { -ms-overflow-style: none; scrollbar-width: none; }

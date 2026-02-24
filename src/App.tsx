@@ -1,8 +1,13 @@
 import './index.css'
+import { AppProvider } from './contexts/AppContext'
 import Dashboard from './components/Dashboard'
 
 function App() {
-  return <Dashboard />
+  return (
+    <AppProvider>
+      <Dashboard />
+    </AppProvider>
+  )
 }
 
 export default App

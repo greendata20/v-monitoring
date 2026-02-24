@@ -3,6 +3,7 @@ import {
   Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
 import { sectorData, sectorYearlyTrend } from '../../data/employmentData';
+import { useApp } from '../../contexts/AppContext';
 
 // 집계 고용률 = 장애인 고용자 수 / 전체 근로자 수 × 100
 const calcRate = (s: typeof sectorData[0]) =>
@@ -31,6 +32,8 @@ const CustomTrendTooltip = ({
 };
 
 export default function SectorComparisonChart() {
+  const { t } = useApp();
+
   return (
     <div className="space-y-6">
       {/* 사업체별 요약 카드 */}
@@ -51,11 +54,11 @@ export default function SectorComparisonChart() {
               </p>
               <div className="mt-3 space-y-1.5 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">전체 근로자</span>
+                  <span className="text-gray-500">{t('employment.sectorTotalWorkers')}</span>
                   <span className="text-gray-600">{s.totalWorkers.toLocaleString()}명</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">집계 장애인 고용 비율</span>
+                  <span className="text-gray-500">{t('employment.sectorRate')}</span>
                   <span className="font-semibold" style={{ color: s.color }}>{rate}%</span>
                 </div>
                 <div className="bg-slate-100 rounded-full h-1.5 overflow-hidden mt-1">
@@ -65,7 +68,7 @@ export default function SectorComparisonChart() {
                   />
                 </div>
                 <p className="text-gray-400 text-xs mt-1">
-                  ※ 전체 근로자 대비 비율 (개별 사업장 의무고용률과 무관)
+                  {t('employment.sectorRateNote')}
                 </p>
               </div>
             </div>
@@ -75,7 +78,7 @@ export default function SectorComparisonChart() {
 
       {/* 연도별 추이 */}
       <div className="bg-white rounded-2xl shadow-sm p-5">
-        <h2 className="text-base font-bold text-gray-800 mb-4">사업체 유형별 고용 장애인 수 추이 (2017~2025)</h2>
+        <h2 className="text-base font-bold text-gray-800 mb-4">{t('employment.sectorTrendTitle')}</h2>
         <ResponsiveContainer width="100%" height={240}>
           <LineChart data={sectorYearlyTrend} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -88,9 +91,9 @@ export default function SectorComparisonChart() {
             />
             <Tooltip content={<CustomTrendTooltip />} />
             <Legend iconType="circle" iconSize={8} formatter={(v) => <span className="text-xs text-gray-600">{v}</span>} />
-            <Line type="monotone" dataKey="private"    name="민간기업"        stroke="#3b82f6" strokeWidth={2.5} dot={{ r: 4 }} />
-            <Line type="monotone" dataKey="government" name="국가·지방자치단체" stroke="#8b5cf6" strokeWidth={2}   dot={{ r: 3 }} strokeDasharray="5 3" />
-            <Line type="monotone" dataKey="public"     name="공공기관"        stroke="#10b981" strokeWidth={2}   dot={{ r: 3 }} strokeDasharray="5 3" />
+            <Line type="monotone" dataKey="private"    name={t('employment.sectorPrivate')}        stroke="#3b82f6" strokeWidth={2.5} dot={{ r: 4 }} />
+            <Line type="monotone" dataKey="government" name={t('employment.sectorGov')} stroke="#8b5cf6" strokeWidth={2}   dot={{ r: 3 }} strokeDasharray="5 3" />
+            <Line type="monotone" dataKey="public"     name={t('employment.sectorPublic')}        stroke="#10b981" strokeWidth={2}   dot={{ r: 3 }} strokeDasharray="5 3" />
           </LineChart>
         </ResponsiveContainer>
       </div>

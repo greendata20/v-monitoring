@@ -78,5 +78,5 @@ export const genderData: GenderData[] = [
 ];
 
 // 기준 연도
-export const DATA_YEAR = 2025;
+export const DATA_YEAR = 2026;
 export const TOTAL = disabilityTypes.reduce((sum, d) => sum + d.count, 0);

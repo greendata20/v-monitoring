@@ -7,19 +7,22 @@ import {
 } from '../../data/salesData';
 import { getContact } from '../../hooks/useContactStore';
 import ContactModal from './ContactModal';
-
-const STATUS_BADGE: Record<string, { label: string; bg: string; text: string }> = {
-  none:       { label: '미컨택',   bg: 'bg-gray-100',   text: 'text-gray-500' },
-  contacted:  { label: '컨택완료', bg: 'bg-blue-100',   text: 'text-blue-600' },
-  meeting:    { label: '미팅완료', bg: 'bg-purple-100', text: 'text-purple-600' },
-  contracted: { label: '계약진행', bg: 'bg-emerald-100',text: 'text-emerald-600' },
-  rejected:   { label: '보류',     bg: 'bg-red-100',    text: 'text-red-500' },
-};
+import { useApp } from '../../contexts/AppContext';
 
 type SortKey = 'gap' | 'employmentRate' | 'estimatedLevy' | 'totalWorkers' | 'name';
 type SortDir = 'asc' | 'desc';
 
 export default function CompanyTable() {
+  const { t } = useApp();
+
+  const STATUS_BADGE: Record<string, { label: string; bg: string; text: string }> = {
+    none:       { label: t('sales.contactNone'),       bg: 'bg-gray-100',    text: 'text-gray-500' },
+    contacted:  { label: t('sales.contactContacted'),  bg: 'bg-blue-100',    text: 'text-blue-600' },
+    meeting:    { label: t('sales.contactMeeting'),    bg: 'bg-purple-100',  text: 'text-purple-600' },
+    contracted: { label: t('sales.contactContracted'), bg: 'bg-emerald-100', text: 'text-emerald-600' },
+    rejected:   { label: t('sales.contactRejected'),   bg: 'bg-red-100',     text: 'text-red-500' },
+  };
+
   const [search, setSearch] = useState('');
   const [filterIndustry, setFilterIndustry] = useState('전체');
   const [filterRegion, setFilterRegion] = useState('전체');
@@ -85,15 +88,18 @@ export default function CompanyTable() {
     <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-base font-bold text-gray-800">기업별 장애인 고용 현황</h2>
+          <h2 className="text-base font-bold text-gray-800">{t('sales.tableTitle')}</h2>
           <p className="text-xs text-gray-400">
-            전체 {companies.length}개사 | 부족 {companies.filter(c => c.gap > 0).length}개사 |
-            명단공표 {companies.filter(c => c.isPubliclyNamed).length}개사
+            {t('sales.tableSub', {
+              total: companies.length,
+              deficit: companies.filter(c => c.gap > 0).length,
+              named: companies.filter(c => c.isPubliclyNamed).length,
+            })}
           </p>
         </div>
         <input
           type="text"
-          placeholder="기업명 / 업종 검색..."
+          placeholder={t('sales.searchPlaceholder')}
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 w-full sm:w-52"
@@ -108,7 +114,7 @@ export default function CompanyTable() {
           onChange={(e) => { setFilterIndustry(e.target.value); setPage(1); }}
           className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-300"
         >
-          <option>전체</option>
+          <option value="전체">{t('policy.supportFilterAll')}</option>
           {industries.map((i) => <option key={i}>{i}</option>)}
         </select>
 
@@ -118,7 +124,7 @@ export default function CompanyTable() {
           onChange={(e) => { setFilterRegion(e.target.value); setPage(1); }}
           className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-300"
         >
-          <option>전체</option>
+          <option value="전체">{t('policy.supportFilterAll')}</option>
           {regions.map((r) => <option key={r}>{r}</option>)}
         </select>
 
@@ -145,7 +151,7 @@ export default function CompanyTable() {
             onChange={(e) => { setFilterDeficit(e.target.checked); setPage(1); }}
             className="accent-blue-500"
           />
-          <span className="text-gray-600">미달 기업만</span>
+          <span className="text-gray-600">{t('sales.filterDeficit')}</span>
         </label>
         <label className="flex items-center gap-1.5 cursor-pointer select-none">
           <input
@@ -154,10 +160,10 @@ export default function CompanyTable() {
             onChange={(e) => { setFilterNamed(e.target.checked); setPage(1); }}
             className="accent-red-500"
           />
-          <span className="text-gray-600">명단공표만</span>
+          <span className="text-gray-600">{t('sales.filterNamed')}</span>
         </label>
 
-        <span className="ml-auto text-gray-400 self-center">총 {filtered.length}개사</span>
+        <span className="ml-auto text-gray-400 self-center">{t('sales.totalCount', { n: filtered.length })}</span>
       </div>
 
       {/* 테이블 */}
@@ -167,35 +173,35 @@ export default function CompanyTable() {
             <tr className="border-b border-slate-100 text-xs text-gray-500">
               <th className="text-left py-2 px-2">
                 <button onClick={() => handleSort('name')} className="font-semibold hover:text-gray-800">
-                  기업명 <SortIcon col="name" />
+                  {t('sales.colName')} <SortIcon col="name" />
                 </button>
               </th>
-              <th className="text-left py-2 px-2 font-semibold">업종</th>
-              <th className="text-left py-2 px-2 font-semibold hidden md:table-cell">지역</th>
+              <th className="text-left py-2 px-2 font-semibold">{t('sales.colIndustry')}</th>
+              <th className="text-left py-2 px-2 font-semibold hidden md:table-cell">{t('sales.colRegion')}</th>
               <th className="text-right py-2 px-2">
                 <button onClick={() => handleSort('totalWorkers')} className="font-semibold hover:text-gray-800">
-                  근로자수 <SortIcon col="totalWorkers" />
+                  {t('sales.colWorkers')} <SortIcon col="totalWorkers" />
                 </button>
               </th>
-              <th className="text-right py-2 px-2 font-semibold">의무/고용</th>
+              <th className="text-right py-2 px-2 font-semibold">{t('sales.colMandatoryHired')}</th>
               <th className="text-right py-2 px-2">
                 <button onClick={() => handleSort('employmentRate')} className="font-semibold hover:text-gray-800">
-                  고용률 <SortIcon col="employmentRate" />
+                  {t('sales.colEmpRate')} <SortIcon col="employmentRate" />
                 </button>
               </th>
               <th className="text-right py-2 px-2">
                 <button onClick={() => handleSort('gap')} className="font-semibold hover:text-gray-800">
-                  부족 <SortIcon col="gap" />
+                  {t('sales.colShortfall')} <SortIcon col="gap" />
                 </button>
               </th>
               <th className="text-right py-2 px-2">
                 <button onClick={() => handleSort('estimatedLevy')} className="font-semibold hover:text-gray-800">
-                  추정부담금 <SortIcon col="estimatedLevy" />
+                  {t('sales.colLevy')} <SortIcon col="estimatedLevy" />
                 </button>
               </th>
-              <th className="text-center py-2 px-2 font-semibold">우선순위</th>
-              <th className="text-center py-2 px-2 font-semibold">공표</th>
-              <th className="text-center py-2 px-2 font-semibold">컨택</th>
+              <th className="text-center py-2 px-2 font-semibold">{t('sales.colPriority')}</th>
+              <th className="text-center py-2 px-2 font-semibold">{t('sales.colNamed')}</th>
+              <th className="text-center py-2 px-2 font-semibold">{t('sales.colContact')}</th>
             </tr>
           </thead>
           <tbody>
@@ -243,7 +249,7 @@ export default function CompanyTable() {
                   <td className="py-2.5 px-2 text-right">
                     {c.gap > 0
                       ? <span className="font-bold text-red-500 text-sm">-{c.gap}명</span>
-                      : <span className="text-emerald-400 text-xs">달성</span>
+                      : <span className="text-emerald-400 text-xs">{t('sales.achieved')}</span>
                     }
                   </td>
                   {/* 추정부담금 */}
@@ -269,7 +275,7 @@ export default function CompanyTable() {
                   {/* 명단공표 */}
                   <td className="py-2.5 px-2 text-center">
                     {c.isPubliclyNamed
-                      ? <span className="text-xs text-red-500 font-bold">공표</span>
+                      ? <span className="text-xs text-red-500 font-bold">{t('sales.namedBadge')}</span>
                       : <span className="text-xs text-gray-200">-</span>
                     }
                   </td>
@@ -313,7 +319,7 @@ export default function CompanyTable() {
             disabled={page === 1}
             className="px-3 py-1 text-xs rounded-lg border border-gray-200 disabled:opacity-30 hover:bg-gray-50"
           >
-            이전
+            {t('sales.prevPage')}
           </button>
           <span className="text-xs text-gray-500">{page} / {totalPages}</span>
           <button
@@ -321,19 +327,19 @@ export default function CompanyTable() {
             disabled={page === totalPages}
             className="px-3 py-1 text-xs rounded-lg border border-gray-200 disabled:opacity-30 hover:bg-gray-50"
           >
-            다음
+            {t('sales.nextPage')}
           </button>
         </div>
       )}
 
       {/* 범례 */}
       <div className="border-t border-slate-100 pt-3 flex flex-wrap gap-4 text-xs text-gray-400">
-        <span>🔴 명단공표 (고용률 &lt;1.55%)</span>
-        <span>A급: 부족 15명↑ or 미고용</span>
-        <span>B급: 부족 6~14명</span>
-        <span>C급: 부족 1~5명</span>
-        <span>의무고용률: 민간 {MANDATORY_RATE_PRIVATE}%, 공공기관 {MANDATORY_RATE_PUBLIC}%</span>
-        <span>부담금: 이행률 구간별 차등 (미고용 시 최대 2,516만원/인/년)</span>
+        <span>{t('sales.legendNamed')}</span>
+        <span>{t('sales.legendA')}</span>
+        <span>{t('sales.legendB')}</span>
+        <span>{t('sales.legendC')}</span>
+        <span>{t('sales.legendMandatoryRate', { private: MANDATORY_RATE_PRIVATE, public: MANDATORY_RATE_PUBLIC })}</span>
+        <span>{t('sales.legendLevy')}</span>
       </div>
 
       {/* 컨택 모달 */}
