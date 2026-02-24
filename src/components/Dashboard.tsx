@@ -46,9 +46,9 @@ export default function Dashboard() {
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-3">
                 <img
-                  src="https://sjinfotec.com/jexpo/smartwork/upload/2023/vdream/%EB%B8%8C%EC%9D%B4%EB%93%9C%EB%A6%BC%20%ED%95%9C%EA%B8%80%EB%A1%9C%EA%B3%A0.png"
+                  src="/logo.png"
                   alt="VDREAM"
-                  className="h-8 w-auto object-contain flex-shrink-0 self-start mt-0.5"
+                  className="h-9 w-auto object-contain flex-shrink-0 self-center"
                 />
                 <h1 className="text-base sm:text-lg font-bold text-gray-900 leading-tight self-center">
                   {t('header.title')}
