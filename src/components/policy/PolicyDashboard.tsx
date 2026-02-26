@@ -875,8 +875,8 @@ function LevyCalculatorSection() {
               <label className={labelCls}>{t('policy.calcLabelContract')}</label>
               <div className="flex gap-2">
                 {([
-                  { value: 1 as const, label: t('policy.calcContract1'), price: '월 500,000원/인' },
-                  { value: 3 as const, label: t('policy.calcContract3'), price: '월 370,000원/인', badge: true },
+                  { value: 1 as const, label: t('policy.calcContract1') },
+                  { value: 3 as const, label: t('policy.calcContract3'), badge: true },
                 ] as const).map((opt) => (
                   <button
                     key={opt.value}
@@ -895,7 +895,6 @@ function LevyCalculatorSection() {
                         </span>
                       )}
                     </div>
-                    <div className={`text-xs mt-0.5 ${contractYear === opt.value ? 'opacity-75' : 'text-gray-400'}`}>{opt.price}</div>
                   </button>
                 ))}
               </div>
@@ -1006,7 +1005,7 @@ function LevyCalculatorSection() {
                   <div>
                     <p className="text-gray-600">{t('policy.calcVdreamCost')}</p>
                     <p className="text-gray-400">
-                      {t('policy.calcVdreamCostDetail', { n: totalAdditional, rate: (VDREAM_RATE / 10000).toFixed(0) })}
+                      {t('policy.calcVdreamCostDetail', { n: totalAdditional })}
                       {viewMode === 'annual' && ` ${t('policy.calcVdreamCostDetailAnnual')}`}
                     </p>
                   </div>
@@ -1080,7 +1079,6 @@ function LevyCalculatorSection() {
                 {[
                   {
                     label: t('policy.calcContract1'),
-                    rate: 500_000,
                     vdream: vdreamAnnual1Y,
                     total: totalCost1Y,
                     net: netSaving1Y,
@@ -1089,7 +1087,6 @@ function LevyCalculatorSection() {
                   },
                   {
                     label: t('policy.calcContract3'),
-                    rate: 370_000,
                     vdream: vdreamAnnual3Y,
                     total: totalCost3Y,
                     net: netSaving3Y,
@@ -1103,7 +1100,6 @@ function LevyCalculatorSection() {
                   >
                     <div className={`px-3 py-2 flex items-center justify-between ${opt.isSelected ? 'bg-indigo-500 text-white' : 'bg-slate-100 text-slate-700'}`}>
                       <span className="text-xs font-bold">{opt.label}</span>
-                      <span className="text-xs opacity-80">{(opt.rate / 10000).toFixed(0)}만원/월·인</span>
                     </div>
                     <div className="px-3 py-3 space-y-1.5 text-xs">
                       <div className="flex justify-between text-gray-500">

@@ -10,7 +10,6 @@ import SalesDashboard from './sales/SalesDashboard';
 import PolicyDashboard from './policy/PolicyDashboard';
 import { TOTAL, DATA_YEAR, disabilityTypes, yearlyTrend } from '../data/disabilityData';
 import { useApp } from '../contexts/AppContext';
-import type { Lang } from '../i18n/translations';
 
 type Tab = 'registration' | 'employment' | 'global' | 'sales' | 'policy';
 
@@ -26,15 +25,9 @@ const TAB_IDS: { id: Tab; key: string; icon: string }[] = [
   { id: 'policy',       key: 'nav.policy',       icon: '🏛️' },
 ];
 
-const LANG_OPTIONS: { value: Lang; label: string }[] = [
-  { value: 'ko', label: '한' },
-  { value: 'ja', label: '日' },
-  { value: 'en', label: 'EN' },
-];
-
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('registration');
-  const { t, lang, setLang, isDark, toggleDark } = useApp();
+  const { t, isDark, toggleDark } = useApp();
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -59,25 +52,8 @@ export default function Dashboard() {
               </p>
             </div>
 
-            {/* Right: lang switcher + dark toggle + badge */}
+            {/* Right: dark toggle + badge */}
             <div className="flex items-center gap-2 self-start sm:self-auto">
-              {/* Language switcher */}
-              <div className="flex rounded-lg border border-slate-200 overflow-hidden text-xs font-bold">
-                {LANG_OPTIONS.map(({ value, label }) => (
-                  <button
-                    key={value}
-                    onClick={() => setLang(value)}
-                    className={`px-2.5 py-1.5 transition-colors ${
-                      lang === value
-                        ? 'bg-blue-500 text-white'
-                        : 'text-gray-500 hover:bg-slate-50'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-
               {/* Dark mode toggle */}
               <button
                 onClick={toggleDark}
