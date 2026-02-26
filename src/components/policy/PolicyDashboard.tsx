@@ -853,20 +853,21 @@ function LevyCalculatorSection() {
 
           {/* VDREAM 솔루션 연계 */}
           <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2">
-                <span>🤝</span> {t('policy.calcSectionVdream')}
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2 min-w-0">
+                <span className="flex-shrink-0">🤝</span>
+                <span className="truncate">{t('policy.calcSectionVdream')}</span>
               </h2>
               <button
                 onClick={() => setShowPricing(p => !p)}
-                className={`flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full border-2 transition-all ${
+                className={`flex-shrink-0 flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-full border-2 whitespace-nowrap transition-all ${
                   showPricing
                     ? 'bg-indigo-50 text-indigo-600 border-indigo-300'
                     : 'bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300'
                 }`}
               >
-                <span className={`relative w-7 h-4 rounded-full flex-shrink-0 transition-colors ${showPricing ? 'bg-indigo-500' : 'bg-slate-300'}`}>
-                  <span className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ${showPricing ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                <span className={`relative inline-block w-7 h-4 rounded-full flex-shrink-0 transition-colors ${showPricing ? 'bg-indigo-500' : 'bg-slate-300'}`}>
+                  <span className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform duration-200 ${showPricing ? 'translate-x-3' : 'translate-x-0'}`} />
                 </span>
                 {showPricing ? '요금 공개' : '요금 비공개'}
               </button>
@@ -902,23 +903,23 @@ function LevyCalculatorSection() {
                   <button
                     key={opt.value}
                     onClick={() => setContractYear(opt.value)}
-                    className={`flex-1 py-2.5 px-2 text-xs font-semibold rounded-xl border-2 transition-all ${
+                    className={`flex-1 flex flex-col items-center justify-center py-2.5 px-2 text-xs font-semibold rounded-xl border-2 transition-all ${
                       contractYear === opt.value
                         ? 'bg-indigo-500 text-white border-indigo-500'
                         : 'bg-white text-gray-500 border-slate-200 hover:bg-slate-50'
                     }`}
                   >
-                    <div className="flex items-center justify-center gap-1">
-                      {opt.label}
+                    <div className="flex items-center justify-center gap-1 flex-wrap">
+                      <span>{opt.label}</span>
                       {'badge' in opt && opt.badge && (
-                        <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${contractYear === opt.value ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-600'}`}>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${contractYear === opt.value ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-600'}`}>
                           {t('policy.calcContractSave')}
                         </span>
                       )}
                     </div>
                     {showPricing && (
-                      <div className={`text-xs mt-0.5 ${contractYear === opt.value ? 'opacity-75' : 'text-gray-400'}`}>
-                        월 {opt.rate.toLocaleString()}원/인
+                      <div className={`text-[11px] mt-1 font-normal tabular-nums ${contractYear === opt.value ? 'opacity-80' : 'text-gray-400'}`}>
+                        {(opt.rate / 10000).toFixed(0)}만원/월·인
                       </div>
                     )}
                   </button>
