@@ -626,10 +626,13 @@ function LevyCalculatorSection() {
   const [hoursPerDay, setHoursPerDay] = useState(4);
   const [viewMode, setViewMode] = useState<'monthly' | 'annual'>('annual');
   const [taxRate, setTaxRate] = useState(0.20);
+  const [showPricing, setShowPricing] = useState(false);
+  const [rate1Y, setRate1Y] = useState(500_000);
+  const [rate3Y, setRate3Y] = useState(370_000);
 
   const HOURLY_WAGE = 10_320; // 2026년 최저시급
   const DAYS_PER_MONTH = 22;
-  const VDREAM_RATE = contractYear === 1 ? 500_000 : 370_000;
+  const VDREAM_RATE = contractYear === 1 ? rate1Y : rate3Y;
   const quotaRate = orgType === 'private' ? 0.031 : 0.038;
   const mandatoryCount = Math.floor(totalEmployees * quotaRate);
 
@@ -677,14 +680,8 @@ function LevyCalculatorSection() {
   const currentLevyTaxBurden = currentAnnualLevy * taxRate;
   const currentEffectiveLevyCost = currentAnnualLevy * (1 + taxRate);
   const afterEffectiveLevyCost = afterAnnualLevy * (1 + taxRate);
-  const vdreamTaxSaving = vdreamAnnual * taxRate;
   const wageTaxSaving = wageAnnual * taxRate;
-  const effectiveTotalCostAfter = afterEffectiveLevyCost + vdreamAnnual * (1 - taxRate) + wageAnnual * (1 - taxRate);
-  const effectiveNetSaving = currentEffectiveLevyCost - effectiveTotalCostAfter;
-
-  // 브이드림 도입 절감률 (세후 실질)
-  const savingRate = currentEffectiveLevyCost > 0
-    ? (effectiveNetSaving / currentEffectiveLevyCost) * 100 : 0;
+  // 브이드림 도입 절감률 (세후 실질) — display 변수로 통합됨
   const remainingRecognized = Math.max(0, mandatoryCount - currentRecognized);
   const maxAdditionalSevere = remainingRecognized > 0 ? Math.ceil(remainingRecognized / 2) : 0;
   const maxVdreamCostCalc = maxAdditionalSevere * VDREAM_RATE * 12;
@@ -695,8 +692,17 @@ function LevyCalculatorSection() {
     ? (maxEffectiveNetSaving / currentEffectiveLevyCost) * 100 : 0;
 
   // 계약 기간별 비교용 (1년 vs 3년)
-  const vdreamAnnual1Y = totalAdditional * 500_000 * 12;
-  const vdreamAnnual3Y = totalAdditional * 370_000 * 12;
+  const vdreamAnnual1Y = totalAdditional * rate1Y * 12;
+  const vdreamAnnual3Y = totalAdditional * rate3Y * 12;
+
+  // 공개/비공개 모드 표시용 (비공개 시 VDREAM 비용 0으로 처리)
+  const displayVdreamAnnual = showPricing ? vdreamAnnual : 0;
+  const displayVdreamTaxSaving = displayVdreamAnnual * taxRate;
+  const displayTotalCostAfter = afterAnnualLevy + displayVdreamAnnual + wageAnnual;
+  const displayNetSaving = currentAnnualLevy - displayTotalCostAfter;
+  const displayEffectiveTotalCostAfter = afterEffectiveLevyCost + displayVdreamAnnual * (1 - taxRate) + wageAnnual * (1 - taxRate);
+  const displayEffectiveNetSaving = currentEffectiveLevyCost - displayEffectiveTotalCostAfter;
+  const displaySavingRate = currentEffectiveLevyCost > 0 ? (displayEffectiveNetSaving / currentEffectiveLevyCost) * 100 : 0;
   const totalCost1Y = afterAnnualLevy + vdreamAnnual1Y + wageAnnual;
   const totalCost3Y = afterAnnualLevy + vdreamAnnual3Y + wageAnnual;
   const netSaving1Y = currentAnnualLevy - totalCost1Y;
@@ -847,9 +853,24 @@ function LevyCalculatorSection() {
 
           {/* VDREAM 솔루션 연계 */}
           <div className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
-            <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2">
-              <span>🤝</span> {t('policy.calcSectionVdream')}
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                <span>🤝</span> {t('policy.calcSectionVdream')}
+              </h2>
+              <button
+                onClick={() => setShowPricing(p => !p)}
+                className={`flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full border-2 transition-all ${
+                  showPricing
+                    ? 'bg-indigo-50 text-indigo-600 border-indigo-300'
+                    : 'bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                <span className={`relative w-7 h-4 rounded-full flex-shrink-0 transition-colors ${showPricing ? 'bg-indigo-500' : 'bg-slate-300'}`}>
+                  <span className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ${showPricing ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                </span>
+                {showPricing ? '요금 공개' : '요금 비공개'}
+              </button>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className={labelCls}>{t('policy.calcLabelAddMild')}</label>
@@ -875,8 +896,8 @@ function LevyCalculatorSection() {
               <label className={labelCls}>{t('policy.calcLabelContract')}</label>
               <div className="flex gap-2">
                 {([
-                  { value: 1 as const, label: t('policy.calcContract1') },
-                  { value: 3 as const, label: t('policy.calcContract3'), badge: true },
+                  { value: 1 as const, label: t('policy.calcContract1'), rate: rate1Y },
+                  { value: 3 as const, label: t('policy.calcContract3'), rate: rate3Y, badge: true },
                 ] as const).map((opt) => (
                   <button
                     key={opt.value}
@@ -895,9 +916,36 @@ function LevyCalculatorSection() {
                         </span>
                       )}
                     </div>
+                    {showPricing && (
+                      <div className={`text-xs mt-0.5 ${contractYear === opt.value ? 'opacity-75' : 'text-gray-400'}`}>
+                        월 {opt.rate.toLocaleString()}원/인
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>
+              {showPricing && (
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">1년 계약 월 단가 (원)</label>
+                    <input
+                      type="number" step="10000" min="0"
+                      value={rate1Y}
+                      onChange={(e) => setRate1Y(Math.max(0, parseInt(e.target.value) || 0))}
+                      className="w-full border border-indigo-200 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white text-right font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">3년 계약 월 단가 (원)</label>
+                    <input
+                      type="number" step="10000" min="0"
+                      value={rate3Y}
+                      onChange={(e) => setRate3Y(Math.max(0, parseInt(e.target.value) || 0))}
+                      className="w-full border border-indigo-200 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white text-right font-mono"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
             <div>
               <label className={labelCls}>{t('policy.calcLabelHours')}</label>
@@ -1001,16 +1049,18 @@ function LevyCalculatorSection() {
                   <span className="text-gray-600">{t('policy.calcLevyAfter')}</span>
                   <span className="font-semibold text-gray-800">{display(afterAnnualLevy)}</span>
                 </div>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-gray-600">{t('policy.calcVdreamCost')}</p>
-                    <p className="text-gray-400">
-                      {t('policy.calcVdreamCostDetail', { n: totalAdditional })}
-                      {viewMode === 'annual' && ` ${t('policy.calcVdreamCostDetailAnnual')}`}
-                    </p>
+                {showPricing && (
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-gray-600">{t('policy.calcVdreamCost')}</p>
+                      <p className="text-gray-400">
+                        {t('policy.calcVdreamCostDetail', { n: totalAdditional })}
+                        {viewMode === 'annual' && ` ${t('policy.calcVdreamCostDetailAnnual')}`}
+                      </p>
+                    </div>
+                    <span className="font-semibold text-gray-800">{display(vdreamAnnual)}</span>
                   </div>
-                  <span className="font-semibold text-gray-800">{display(vdreamAnnual)}</span>
-                </div>
+                )}
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="text-gray-600">{t('policy.calcWageCost')}</p>
@@ -1023,19 +1073,19 @@ function LevyCalculatorSection() {
                 </div>
                 <div className="flex justify-between items-center border-t border-blue-200 pt-2">
                   <span className="font-bold text-gray-700">{t('policy.calcTotalCost', { period: periodLabel })}</span>
-                  <span className="text-lg font-bold text-blue-700">{display(totalCostAfter)}</span>
+                  <span className="text-lg font-bold text-blue-700">{display(displayTotalCostAfter)}</span>
                 </div>
               </div>
             </div>
 
             {/* 순 절감 */}
-            <div className={`rounded-xl border-2 p-4 ${netSaving >= 0 ? 'bg-emerald-50 border-emerald-300' : 'bg-orange-50 border-orange-300'}`}>
+            <div className={`rounded-xl border-2 p-4 ${displayNetSaving >= 0 ? 'bg-emerald-50 border-emerald-300' : 'bg-orange-50 border-orange-300'}`}>
               <div className="flex items-center justify-between mb-3">
-                <p className={`text-sm font-bold ${netSaving >= 0 ? 'text-emerald-700' : 'text-orange-700'}`}>
-                  {netSaving >= 0 ? '✅' : '⚠️'} {netSaving >= 0 ? t('policy.calcNetSavingTitle', { period: periodLabel }) : t('policy.calcNetExtraCostTitle', { period: periodLabel })}
+                <p className={`text-sm font-bold ${displayNetSaving >= 0 ? 'text-emerald-700' : 'text-orange-700'}`}>
+                  {displayNetSaving >= 0 ? '✅' : '⚠️'} {displayNetSaving >= 0 ? t('policy.calcNetSavingTitle', { period: periodLabel }) : t('policy.calcNetExtraCostTitle', { period: periodLabel })}
                 </p>
-                <p className={`text-2xl font-bold ${netSaving >= 0 ? 'text-emerald-600' : 'text-orange-600'}`}>
-                  {netSaving >= 0 ? '+' : ''}{display(netSaving)}
+                <p className={`text-2xl font-bold ${displayNetSaving >= 0 ? 'text-emerald-600' : 'text-orange-600'}`}>
+                  {displayNetSaving >= 0 ? '+' : ''}{display(displayNetSaving)}
                 </p>
               </div>
               <div className="space-y-1.5 text-xs border-t border-black/10 pt-3">
@@ -1043,10 +1093,12 @@ function LevyCalculatorSection() {
                   <span>{t('policy.calcLevySaving')}</span>
                   <span className="font-semibold text-emerald-600">+{display(levySaving)}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>{t('policy.calcVdreamCostNeg')}</span>
-                  <span className="font-semibold text-red-500">-{display(vdreamAnnual)}</span>
-                </div>
+                {showPricing && (
+                  <div className="flex justify-between text-gray-600">
+                    <span>{t('policy.calcVdreamCostNeg')}</span>
+                    <span className="font-semibold text-red-500">-{display(vdreamAnnual)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-gray-600">
                   <span>{t('policy.calcWageCostNeg')}</span>
                   <span className="font-semibold text-red-500">-{display(wageAnnual)}</span>
@@ -1072,7 +1124,7 @@ function LevyCalculatorSection() {
           </div>
 
           {/* 1년 vs 3년 계약 비교 */}
-          {totalAdditional > 0 && (
+          {totalAdditional > 0 && showPricing && (
             <div className="bg-white rounded-2xl shadow-sm p-5">
               <h2 className="text-sm font-bold text-gray-800 mb-3">{t('policy.calcContractCompareTitle')}</h2>
               <div className="grid grid-cols-2 gap-3">
@@ -1171,14 +1223,18 @@ function LevyCalculatorSection() {
                 <span>{t('policy.calcLevyWithTax')}</span>
                 <span className="font-medium">{display(afterEffectiveLevyCost)}</span>
               </div>
-              <div className="flex justify-between text-gray-600">
-                <span>{t('policy.calcVdreamCost')}</span>
-                <span className="font-medium">{display(vdreamAnnual)}</span>
-              </div>
-              <div className="flex justify-between text-emerald-600 pl-2">
-                <span>{t('policy.calcTaxSaveEffect', { pct: (taxRate * 100).toFixed(0) })}</span>
-                <span>-{display(vdreamTaxSaving)}</span>
-              </div>
+              {showPricing && (
+                <>
+                  <div className="flex justify-between text-gray-600">
+                    <span>{t('policy.calcVdreamCost')}</span>
+                    <span className="font-medium">{display(vdreamAnnual)}</span>
+                  </div>
+                  <div className="flex justify-between text-emerald-600 pl-2">
+                    <span>{t('policy.calcTaxSaveEffect', { pct: (taxRate * 100).toFixed(0) })}</span>
+                    <span>-{display(displayVdreamTaxSaving)}</span>
+                  </div>
+                </>
+              )}
               <div className="flex justify-between text-gray-600">
                 <span>{t('policy.calcWageCost')}</span>
                 <span className="font-medium">{display(wageAnnual)}</span>
@@ -1189,24 +1245,24 @@ function LevyCalculatorSection() {
               </div>
               <div className="flex justify-between font-bold text-blue-700 border-t border-blue-200 pt-1.5">
                 <span>{t('policy.calcEffectiveTotal')}</span>
-                <span className="text-base">{display(effectiveTotalCostAfter)}</span>
+                <span className="text-base">{display(displayEffectiveTotalCostAfter)}</span>
               </div>
             </div>
 
             {/* 세후 실질 순 절감 */}
-            <div className={`rounded-xl border-2 p-3 ${effectiveNetSaving >= 0 ? 'bg-emerald-50 border-emerald-300' : 'bg-orange-50 border-orange-300'}`}>
+            <div className={`rounded-xl border-2 p-3 ${displayEffectiveNetSaving >= 0 ? 'bg-emerald-50 border-emerald-300' : 'bg-orange-50 border-orange-300'}`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className={`text-xs font-bold ${effectiveNetSaving >= 0 ? 'text-emerald-700' : 'text-orange-700'}`}>
+                  <p className={`text-xs font-bold ${displayEffectiveNetSaving >= 0 ? 'text-emerald-700' : 'text-orange-700'}`}>
                     {t('policy.calcEffectiveNetSaving', { period: periodLabel })}
                   </p>
                   <p className="text-xs text-gray-400 mt-0.5">
-                    {t('policy.calcVsNominal', { amount: display(netSaving) })}{' '}
-                    <span className="text-emerald-600 font-semibold">{t('policy.calcAdditionalBenefit', { amount: display(Math.abs(effectiveNetSaving - netSaving)) })}</span>
+                    {t('policy.calcVsNominal', { amount: display(displayNetSaving) })}{' '}
+                    <span className="text-emerald-600 font-semibold">{t('policy.calcAdditionalBenefit', { amount: display(Math.abs(displayEffectiveNetSaving - displayNetSaving)) })}</span>
                   </p>
                 </div>
-                <p className={`text-xl font-bold ${effectiveNetSaving >= 0 ? 'text-emerald-600' : 'text-orange-600'}`}>
-                  {effectiveNetSaving >= 0 ? '+' : ''}{display(effectiveNetSaving)}
+                <p className={`text-xl font-bold ${displayEffectiveNetSaving >= 0 ? 'text-emerald-600' : 'text-orange-600'}`}>
+                  {displayEffectiveNetSaving >= 0 ? '+' : ''}{display(displayEffectiveNetSaving)}
                 </p>
               </div>
             </div>
@@ -1216,7 +1272,7 @@ function LevyCalculatorSection() {
           </div>
 
           {/* 브이드림 도입 절감률 */}
-          {currentEffectiveLevyCost > 0 && (
+          {currentEffectiveLevyCost > 0 && showPricing && (
             <div className="bg-white rounded-2xl shadow-sm p-5 space-y-3">
               <div className="flex items-center gap-2">
                 <span>📉</span>
@@ -1225,24 +1281,24 @@ function LevyCalculatorSection() {
               <p className="text-xs text-gray-500 -mt-1">{t('policy.calcSavingRateSub')}</p>
 
               {/* 현재 시나리오 */}
-              <div className={`rounded-xl p-4 border ${savingRate > 0 ? 'bg-emerald-50 border-emerald-200' : savingRate < 0 ? 'bg-orange-50 border-orange-200' : 'bg-slate-50 border-slate-200'}`}>
+              <div className={`rounded-xl p-4 border ${displaySavingRate > 0 ? 'bg-emerald-50 border-emerald-200' : displaySavingRate < 0 ? 'bg-orange-50 border-orange-200' : 'bg-slate-50 border-slate-200'}`}>
                 <p className="text-xs font-semibold text-gray-500 mb-2">{t('policy.calcSavingCurrent')}</p>
                 <div className="flex items-end justify-between">
-                  <span className={`text-3xl font-bold ${savingRate > 0 ? 'text-emerald-600' : savingRate < 0 ? 'text-orange-600' : 'text-gray-400'}`}>
-                    {savingRate < 0 ? '-' : ''}{Math.abs(savingRate).toFixed(1)}%
+                  <span className={`text-3xl font-bold ${displaySavingRate > 0 ? 'text-emerald-600' : displaySavingRate < 0 ? 'text-orange-600' : 'text-gray-400'}`}>
+                    {displaySavingRate < 0 ? '-' : ''}{Math.abs(displaySavingRate).toFixed(1)}%
                   </span>
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${savingRate > 0 ? 'bg-emerald-100 text-emerald-700' : savingRate < 0 ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-500'}`}>
-                    {savingRate >= 0 ? t('policy.calcSavingReduced') : t('policy.calcSavingIncreased')}
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${displaySavingRate > 0 ? 'bg-emerald-100 text-emerald-700' : displaySavingRate < 0 ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-500'}`}>
+                    {displaySavingRate >= 0 ? t('policy.calcSavingReduced') : t('policy.calcSavingIncreased')}
                   </span>
                 </div>
                 <div className="mt-2 bg-gray-200 rounded-full h-2 overflow-hidden">
                   <div
-                    className={`h-full rounded-full transition-all ${savingRate > 0 ? 'bg-emerald-400' : 'bg-orange-400'}`}
-                    style={{ width: `${Math.min(100, Math.max(0, Math.abs(savingRate)))}%` }}
+                    className={`h-full rounded-full transition-all ${displaySavingRate > 0 ? 'bg-emerald-400' : 'bg-orange-400'}`}
+                    style={{ width: `${Math.min(100, Math.max(0, Math.abs(displaySavingRate)))}%` }}
                   />
                 </div>
                 <p className="text-xs text-gray-400 mt-1.5">
-                  {t('policy.calcSavingNetLabel')}: <span className={`font-semibold ${effectiveNetSaving >= 0 ? 'text-emerald-600' : 'text-orange-600'}`}>{effectiveNetSaving >= 0 ? '+' : ''}{display(effectiveNetSaving)}</span>
+                  {t('policy.calcSavingNetLabel')}: <span className={`font-semibold ${displayEffectiveNetSaving >= 0 ? 'text-emerald-600' : 'text-orange-600'}`}>{displayEffectiveNetSaving >= 0 ? '+' : ''}{display(displayEffectiveNetSaving)}</span>
                 </p>
               </div>
 
